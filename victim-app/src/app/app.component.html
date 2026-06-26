@@ -1,0 +1,323 @@
+<!-- ═══════════════════════════════════════════════════════════
+     AI SafeBand - Victim App Template
+     ═══════════════════════════════════════════════════════════ -->
+
+<!-- SETUP SCREEN -->
+<div class="setup-screen" *ngIf="isSetup">
+  <div class="setup-content slide-up">
+
+    <!-- Logo -->
+    <div class="logo-container">
+      <div class="shield-glow">
+        <div class="shield-icon">🛡️</div>
+      </div>
+      <h1 class="app-title">AI SafeBand</h1>
+      <p class="app-subtitle">Smart Women Safety System</p>
+    </div>
+
+    <!-- Feature chips -->
+    <div class="feature-chips">
+      <span class="chip">📡 GPS</span>
+      <span class="chip">📳 Shake</span>
+      <span class="chip">🎙️ Scream</span>
+      <span class="chip">❤️ Heart Rate</span>
+      <span class="chip sos-chip">🆘 SOS</span>
+    </div>
+
+    <!-- ── ALREADY REGISTERED: Fast-Track Card ── -->
+    <div class="setup-card registered-card" *ngIf="isAlreadyRegistered">
+      <div class="registered-welcome">
+        <div class="reg-avatar">{{ victimName.charAt(0).toUpperCase() }}</div>
+        <div class="reg-info">
+          <p class="reg-label">Welcome back!</p>
+          <p class="reg-name">{{ victimName }}</p>
+          <p class="reg-guardian">🛡️ Guardian: <strong>{{ guardianName }}</strong> · {{ guardianPhone }}</p>
+        </div>
+      </div>
+      <button class="start-btn pulse-glow" (click)="startWithRegistered()">
+        <span class="btn-icon">⚡</span>
+        Continue as {{ victimName }}
+      </button>
+      <button class="edit-btn" (click)="showEditForm = !showEditForm">
+        {{ showEditForm ? '▲ Hide form' : '✏️ Update details' }}
+      </button>
+
+      <!-- Inline Edit Form (collapsed by default) -->
+      <div class="edit-form-collapse" *ngIf="showEditForm">
+        <div class="divider-label">Update Your Details</div>
+        <div class="setup-form-grid">
+          <div class="input-group">
+            <label for="victimNameEdit">Your Name</label>
+            <input id="victimNameEdit" type="text" [(ngModel)]="victimName" placeholder="e.g., Sara" class="name-input" autocomplete="name">
+          </div>
+          <div class="input-group">
+            <label for="victimPhoneEdit">Your Phone Number</label>
+            <input id="victimPhoneEdit" type="tel" [(ngModel)]="victimPhone" placeholder="e.g., +91-9876543210" class="name-input">
+          </div>
+          <div class="input-group">
+            <label for="guardianNameEdit">Guardian's Name</label>
+            <input id="guardianNameEdit" type="text" [(ngModel)]="guardianName" placeholder="e.g., John (Father)" class="name-input">
+          </div>
+          <div class="input-group">
+            <label for="guardianPhoneEdit">Guardian's Phone Number</label>
+            <input id="guardianPhoneEdit" type="tel" [(ngModel)]="guardianPhone" placeholder="e.g., +91-8765432109" class="name-input">
+          </div>
+        </div>
+        <div class="setup-error" *ngIf="setupError">⚠️ {{ setupError }}</div>
+        <button class="start-btn" (click)="startMonitoring()">
+          <span class="btn-icon">🛡️</span> Save & Start Protection
+        </button>
+      </div>
+    </div>
+
+    <!-- ── NEW USER: Full Registration Card ── -->
+    <div class="setup-card" *ngIf="!isAlreadyRegistered">
+      <p class="setup-desc">Register your emergency contact details.<br>
+        Alerts will be routed to your respective guardian dynamically.</p>
+
+      <div class="setup-form-grid">
+        <div class="input-group">
+          <label for="victimName">Your Name</label>
+          <input id="victimName" type="text" [(ngModel)]="victimName"
+                 placeholder="e.g., Sara" class="name-input" autocomplete="name">
+        </div>
+        <div class="input-group">
+          <label for="victimPhone">Your Phone Number</label>
+          <input id="victimPhone" type="tel" [(ngModel)]="victimPhone"
+                 placeholder="e.g., +91-9876543210" class="name-input">
+        </div>
+        <div class="input-group">
+          <label for="guardianName">Guardian's Name</label>
+          <input id="guardianName" type="text" [(ngModel)]="guardianName"
+                 placeholder="e.g., John (Father)" class="name-input">
+        </div>
+        <div class="input-group">
+          <label for="guardianPhone">Guardian's Phone Number</label>
+          <input id="guardianPhone" type="tel" [(ngModel)]="guardianPhone"
+                 placeholder="e.g., +91-8765432109" class="name-input">
+        </div>
+      </div>
+
+      <div class="setup-error" *ngIf="setupError">⚠️ {{ setupError }}</div>
+
+      <button class="start-btn" (click)="startMonitoring()">
+        <span class="btn-icon">🛡️</span>
+        Start Protection
+      </button>
+    </div>
+
+    <!-- Firebase sync status -->
+    <div class="sync-status" *ngIf="firebaseSynced">
+      <span class="sync-dot"></span> Synced with SafeBand Cloud
+    </div>
+
+  </div>
+</div>
+
+<!-- MONITORING SCREEN -->
+<div class="monitoring-screen" *ngIf="!isSetup" [class.alert-active]="alertTriggered">
+
+  <!-- Alert Banner -->
+  <div class="alert-banner" *ngIf="alertTriggered" [class]="alertClass">
+    <span class="alert-icon">🚨</span>
+    <div class="alert-text">
+      <strong>{{ alertLevel }} ALERT!</strong>
+      <span>Guardian has been notified via SMS</span>
+    </div>
+    <span class="alert-score">{{ riskScore }}</span>
+  </div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <span class="header-shield">🛡️</span>
+      <div>
+        <h2 class="header-title">SafeBand</h2>
+        <span class="header-user">{{ victimName }}</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="connection-dot" [class.connected]="backendConnected"
+           [title]="backendConnected ? 'Connected to backend' : 'Offline mode'">
+        {{ backendConnected ? '🟢' : '🔴' }}
+      </div>
+      <button class="stop-btn" (click)="stopMonitoring()">Stop</button>
+    </div>
+  </header>
+
+  <!-- Guardian Banner -->
+  <div class="guardian-preview-card">
+    <div class="g-avatar">👥</div>
+    <div class="g-text">
+      <span class="g-label">ACTIVE GUARDIAN</span>
+      <strong class="g-name">{{ guardianName }} ({{ guardianPhone }})</strong>
+    </div>
+    <button class="edit-profile-btn" (click)="editRegistration()">✏️ Edit Info</button>
+  </div>
+
+  <!-- Risk Score Ring -->
+  <div class="risk-section">
+    <div class="risk-ring" [class]="alertClass">
+      <svg class="ring-svg" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+        <circle cx="60" cy="60" r="50" fill="none" [attr.stroke]="riskBarColor"
+                stroke-width="8" stroke-linecap="round"
+                [style.stroke-dasharray]="'314'"
+                [style.stroke-dashoffset]="314 - (314 * riskScore / 100)"
+                [style.transform]="'rotate(-90deg)'"
+                [style.transform-origin]="'center'"
+                style="transition: stroke-dashoffset 1s ease, stroke 0.5s ease"/>
+      </svg>
+      <div class="ring-content">
+        <div class="risk-number">{{ riskScore }}</div>
+        <div class="risk-label">RISK</div>
+      </div>
+    </div>
+
+    <div class="level-badge" [class]="alertClass">
+      <span *ngIf="alertLevel === 'CRITICAL'">⚠️ CRITICAL</span>
+      <span *ngIf="alertLevel === 'DANGER'">🚨 DANGER</span>
+      <span *ngIf="alertLevel === 'WARNING'">⚡ WARNING</span>
+      <span *ngIf="alertLevel === 'SAFE'">✅ SAFE</span>
+    </div>
+
+    <div class="risk-reasons" *ngIf="reasons.length > 0">
+      <div class="reason-item" *ngFor="let r of reasons">{{ r }}</div>
+    </div>
+  </div>
+
+  <!-- Sensor Cards Grid -->
+  <div class="sensors-grid">
+
+    <!-- Location -->
+    <div class="sensor-card" [class.active]="location !== null">
+      <div class="sensor-header">
+        <span class="sensor-icon">📍</span>
+        <span class="sensor-name">Location</span>
+        <span class="sensor-status" [class.ok]="location !== null">
+          {{ location ? '●' : '○' }}
+        </span>
+      </div>
+      <div class="sensor-value location-val" (click)="openMapsLink()">
+        {{ locationString }}
+      </div>
+      <div class="sensor-sub">GPS · Built-in · Every 5s</div>
+    </div>
+
+    <!-- Shake / Accelerometer -->
+    <div class="sensor-card" [class.active]="shakeIntensity > 2.5" [class.danger]="shakeIntensity > 5">
+      <div class="sensor-header">
+        <span class="sensor-icon">📳</span>
+        <span class="sensor-name">Shake</span>
+        <span class="sensor-status" [class.ok]="shakeIntensity > 2.5" [class.alert]="shakeIntensity > 5">●</span>
+      </div>
+      <div class="sensor-value">
+        {{ shakeIntensity | number:'1.1-1' }}
+        <span class="unit">m/s²</span>
+      </div>
+      <div class="sensor-bar">
+        <div class="bar-fill shake-bar" [style.width.%]="Math.min(100, shakeIntensity * 15)"></div>
+      </div>
+      <div class="sensor-sub">Accelerometer · &gt;5 = +40 pts</div>
+    </div>
+
+    <!-- Microphone / Scream -->
+    <div class="sensor-card" [class.active]="audioLevel > 15" [class.danger]="screamDetected">
+      <div class="sensor-header">
+        <span class="sensor-icon">🎙️</span>
+        <span class="sensor-name">Scream</span>
+        <span class="sensor-status" [class.alert]="screamDetected">
+          {{ screamDetected ? '🔴' : '●' }}
+        </span>
+      </div>
+      <div class="sensor-value" [class.scream-active]="screamDetected">
+        {{ screamDetected ? 'DETECTED!' : audioPercent + '%' }}
+      </div>
+      <div class="sensor-bar">
+        <div class="bar-fill mic-bar" [style.width.%]="audioPercent"
+             [class.danger-bar]="screamDetected"></div>
+      </div>
+      <div class="sensor-sub">Microphone · &gt;30dB = +35 pts</div>
+    </div>
+
+    <!-- Heart Rate -->
+    <div class="sensor-card"
+         [class.active]="heartRate > 0"
+         [class.danger]="heartRate > 120"
+         [class.sensor-card-measuring]="heartRateStatus === 'measuring'">
+      <div class="sensor-header">
+        <span class="sensor-icon heartbeat-icon" [class.beating]="heartRate > 0">❤️</span>
+        <span class="sensor-name">Heart Rate</span>
+        <span class="sensor-status"
+              [class.ok]="heartRate > 0 && heartRate <= 120"
+              [class.alert]="heartRate > 120">●</span>
+      </div>
+      <div class="sensor-value">
+        {{ heartRate > 0 ? heartRate : '--' }}
+        <span class="unit" *ngIf="heartRate > 0">BPM</span>
+      </div>
+
+      <!-- Not yet started -->
+      <div class="heart-rate-sub" *ngIf="!cameraActive">
+        <button class="camera-btn" (click)="toggleCamera()">
+          📷 Enable Camera rPPG
+        </button>
+      </div>
+
+      <!-- Camera ON: show status -->
+      <div *ngIf="cameraActive">
+        <div class="hr-status-row" *ngIf="heartRateStatus === 'measuring'" >
+          <span class="hr-status-dot measuring-dot"></span>
+          <span class="hr-status-text">Collecting signal... place finger firmly on lens</span>
+        </div>
+        <div class="hr-status-row" *ngIf="heartRateStatus === 'noSignal'">
+          <span class="hr-status-dot nosignal-dot"></span>
+          <span class="hr-status-text warn-text">👆 No finger detected — cover camera fully</span>
+        </div>
+        <div class="hr-status-row" *ngIf="heartRateStatus === 'ok'">
+          <span class="hr-status-dot ok-dot"></span>
+          <span class="hr-status-text">Signal OK</span>
+        </div>
+        <div class="sensor-sub">
+          rPPG · &gt;120 BPM = +25 pts
+          <button class="camera-stop-btn" (click)="toggleCamera()">Stop</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SOS Button -->
+  <div class="sos-section">
+    <button class="sos-button" (click)="triggerSOS()" [class.sos-active]="sosPressed"
+            [disabled]="sosPressed">
+      <div class="sos-ring sos-ring-1"></div>
+      <div class="sos-ring sos-ring-2"></div>
+      <div class="sos-inner">
+        <span class="sos-text">SOS</span>
+        <span class="sos-sub" *ngIf="!sosPressed">Press for Emergency</span>
+        <span class="sos-sub sos-counting" *ngIf="sosPressed">Alert sent! ({{ sosCountdown }}s)</span>
+      </div>
+    </button>
+    <p class="sos-hint">Instantly triggers alert + notifies guardian</p>
+  </div>
+
+  <!-- How it Works Info -->
+  <div class="info-footer">
+    <div class="flow-item">
+      <span class="flow-icon">📡</span>
+      <span>Signals captured</span>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">
+      <span class="flow-icon">🧠</span>
+      <span>Risk scored</span>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-item">
+      <span class="flow-icon">📱</span>
+      <span>SMS sent</span>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build caches & outputs
+.angular/
+dist/
+
+# Environment variables & secrets (CRITICAL FOR TWILIO)
+.env
+.env.*
+!.env.example
+!.env.template
+
+# IDE & OS
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db

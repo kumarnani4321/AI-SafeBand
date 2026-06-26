@@ -1,0 +1,272 @@
+<!-- ═══════════════════════════════════════════════════════════
+     Guardian Dashboard Template
+     ═══════════════════════════════════════════════════════════ -->
+
+<!-- Alert Banner -->
+<div class="alert-banner" *ngIf="showAlertBanner && activeAlerts.length > 0">
+  <div class="alert-banner-inner">
+    <span class="alert-banner-icon">🚨</span>
+    <div class="alert-banner-text">
+      <strong>DANGER ALERT FIRED!</strong>
+      <span>{{ (activeAlerts[0]?.text || '').split('\n')[0] }}</span>
+    </div>
+    <button class="alert-close" (click)="showAlertBanner = false">✕</button>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<div class="layout">
+  <aside class="sidebar">
+    
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <span class="logo-icon">🛡️</span>
+      <div>
+        <h1 class="logo-title">SafeBand</h1>
+        <span class="logo-sub">Guardian Dashboard</span>
+      </div>
+    </div>
+
+    <!-- Connection Status -->
+    <div class="connection-status" [class.connected]="connected">
+      <div class="conn-dot"></div>
+      <span>{{ connected ? 'Live — Backend Connected' : 'Offline — Reconnecting...' }}</span>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-number">{{ victims.length }}</div>
+        <div class="stat-label">Protected</div>
+      </div>
+      <div class="stat-card danger-stat">
+        <div class="stat-number danger-num">{{ criticalCount }}</div>
+        <div class="stat-label">In Danger</div>
+      </div>
+      <div class="stat-card safe-stat">
+        <div class="stat-number safe-num">{{ safeCount }}</div>
+        <div class="stat-label">Safe</div>
+      </div>
+    </div>
+
+    <!-- Victim List -->
+    <div class="victim-list-header">
+      <span>👥 Protected Users</span>
+      <span class="victim-count">{{ victims.length }}</span>
+    </div>
+
+    <div class="victim-list">
+      <div class="no-victims" *ngIf="victims.length === 0">
+        <div class="no-victims-icon">📡</div>
+        <p>Waiting for connections...</p>
+        <p class="no-victims-sub">Victim app sends data every 5s</p>
+      </div>
+
+      <div class="victim-card" *ngFor="let v of victims; trackBy: trackByVictim"
+           [class.selected]="selectedVictim?.victimId === v.victimId"
+           [class.danger-card]="v.alertLevel === 'DANGER' || v.alertLevel === 'CRITICAL'"
+           (click)="selectVictim(v)">
+        
+        <div class="victim-avatar" [style.background]="getAlertColor(v.alertLevel)">
+          {{ v.name ? v.name[0].toUpperCase() : '?' }}
+        </div>
+
+        <div class="victim-info">
+          <div class="victim-name">{{ v.name }}</div>
+          <div class="victim-phone-text" *ngIf="v.phone && v.phone !== 'N/A'">📞 {{ v.phone }}</div>
+          <div class="victim-meta">
+            <span class="level-badge-sm" [class]="getAlertClass(v.alertLevel)">
+              {{ v.alertLevel }}
+            </span>
+            <span class="victim-score">{{ v.riskScore }}/100</span>
+          </div>
+          <div class="victim-time">{{ formatTime(v.lastSeen) }}</div>
+        </div>
+
+        <div class="victim-risk-mini">
+          <svg width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="15" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+            <circle cx="20" cy="20" r="15" fill="none" [attr.stroke]="getAlertColor(v.alertLevel)"
+                    stroke-width="3" stroke-linecap="round"
+                    [style.stroke-dasharray]="'94'"
+                    [style.stroke-dashoffset]="94 - (94 * v.riskScore / 100)"
+                    style="transform:rotate(-90deg);transform-origin:center;transition:all 1s ease"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert History -->
+    <div class="alert-history-section">
+      <div class="section-header">
+        <span>📩 SMS Alerts Sent</span>
+        <span class="count-badge">{{ alertHistory.length }}</span>
+      </div>
+
+      <div class="alert-list">
+        <div class="no-alerts" *ngIf="alertHistory.length === 0">
+          <span>No alerts fired yet</span>
+        </div>
+        <div class="alert-item" *ngFor="let a of alertHistory.slice(0, 10); trackBy: trackByAlert">
+          <div class="alert-item-icon">📱</div>
+          <div class="alert-item-content">
+            <div class="alert-item-time">{{ formatTime(a.timestamp) }}</div>
+            <div class="alert-item-text">{{ (a.text || '').split('\n')[0] }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Map -->
+    <div class="map-section">
+      <div class="map-header">
+        <h2>🗺️ Live Location Map</h2>
+        <div class="map-legend">
+          <span class="legend-dot safe-dot"></span><span>Safe</span>
+          <span class="legend-dot warn-dot"></span><span>Warning</span>
+          <span class="legend-dot danger-dot"></span><span>Danger</span>
+        </div>
+      </div>
+      <div class="map-container" #mapContainer></div>
+    </div>
+
+    <!-- Selected Victim Detail Panel -->
+    <div class="detail-panel" *ngIf="selectedVictim" [class]="getAlertClass(selectedVictim.alertLevel)">
+      
+      <div class="detail-header">
+        <div class="detail-avatar" [style.background]="getAlertColor(selectedVictim.alertLevel)">
+          {{ selectedVictim.name ? selectedVictim.name[0].toUpperCase() : '?' }}
+        </div>
+        <div class="detail-title">
+          <h3>{{ selectedVictim.name }}</h3>
+          <span class="level-badge-lg" [class]="getAlertClass(selectedVictim.alertLevel)">
+            {{ selectedVictim.alertLevel }}
+          </span>
+        </div>
+        <div class="detail-score">
+          <div class="score-circle" [style.border-color]="getAlertColor(selectedVictim.alertLevel)">
+            <span class="score-num">{{ selectedVictim.riskScore }}</span>
+            <span class="score-label">RISK</span>
+          </div>
+        </div>
+        <button class="maps-link-btn" (click)="openGoogleMaps(selectedVictim)" *ngIf="selectedVictim.location">
+          🗺️ Google Maps
+        </button>
+      </div>
+
+      <!-- Victim Metadata Banner (Dynamic Guardian Info) -->
+      <div class="victim-metadata-banner" *ngIf="selectedVictim.phone || selectedVictim.guardianName">
+        <div class="meta-item">
+          <span class="meta-label">📞 Victim Phone</span>
+          <strong class="meta-val">{{ selectedVictim.phone || 'N/A' }}</strong>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">👥 Assigned Guardian</span>
+          <strong class="meta-val">
+            {{ selectedVictim.guardianName || 'N/A' }}
+            <span class="meta-sub" *ngIf="selectedVictim.guardianPhone">({{ selectedVictim.guardianPhone }})</span>
+          </strong>
+        </div>
+      </div>
+
+      <!-- Sensor Details Grid -->
+      <div class="sensor-details-grid">
+        
+        <div class="sensor-detail-card">
+          <div class="sd-icon">📍</div>
+          <div class="sd-content">
+            <span class="sd-label">Location</span>
+            <span class="sd-value">
+              {{ selectedVictim.location?.lat?.toFixed(4) }}°N, 
+              {{ selectedVictim.location?.lng?.toFixed(4) }}°E
+            </span>
+          </div>
+        </div>
+
+        <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.heartRate > 120">
+          <div class="sd-icon heartbeat" [class.beating]="selectedVictim.heartRate > 0">❤️</div>
+          <div class="sd-content">
+            <span class="sd-label">Heart Rate</span>
+            <span class="sd-value">{{ selectedVictim.heartRate || '--' }} BPM</span>
+            <span class="sd-sub" *ngIf="selectedVictim.heartRate > 120">⚠️ Elevated</span>
+          </div>
+        </div>
+
+        <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.shakeIntensity > 15">
+          <div class="sd-icon">📳</div>
+          <div class="sd-content">
+            <span class="sd-label">Shake Intensity</span>
+            <span class="sd-value">{{ selectedVictim.shakeIntensity | number:'1.1-1' }} m/s²</span>
+            <span class="sd-sub" *ngIf="selectedVictim.shakeIntensity > 15">⚠️ Violent shake</span>
+          </div>
+        </div>
+
+        <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.screamDetected">
+          <div class="sd-icon">🎙️</div>
+          <div class="sd-content">
+            <span class="sd-label">Scream Detection</span>
+            <span class="sd-value" [class.scream-val]="selectedVictim.screamDetected">
+              {{ selectedVictim.screamDetected ? '🔴 DETECTED' : '✅ Clear' }}
+            </span>
+            <span class="sd-sub">Audio: {{ selectedVictim.audioLevel }}/255</span>
+          </div>
+        </div>
+
+        <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.sosPressed">
+          <div class="sd-icon">🆘</div>
+          <div class="sd-content">
+            <span class="sd-label">SOS Button</span>
+            <span class="sd-value" [class.sos-val]="selectedVictim.sosPressed">
+              {{ selectedVictim.sosPressed ? '🔴 PRESSED!' : '✅ Not pressed' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="sensor-detail-card">
+          <div class="sd-icon">🕐</div>
+          <div class="sd-content">
+            <span class="sd-label">Last Signal</span>
+            <span class="sd-value">{{ formatTime(selectedVictim.lastSeen) }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Risk Reasons -->
+      <div class="risk-reasons-panel" *ngIf="selectedVictim.riskReasons && selectedVictim.riskReasons.length > 0">
+        <div class="reasons-header">Risk Triggers:</div>
+        <div class="reason-tag" *ngFor="let r of selectedVictim.riskReasons">{{ r }}</div>
+      </div>
+
+    </div>
+
+    <!-- No selection placeholder -->
+    <div class="no-selection" *ngIf="!selectedVictim">
+      <div class="no-sel-icon">👆</div>
+      <p>Click a victim on the map or sidebar to view details</p>
+    </div>
+
+  </main>
+</div>
+
+<!-- Leaflet Map Marker Styles -->
+<style>
+  .map-marker { position: relative; width: 40px; height: 40px; }
+  .marker-inner {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 0.9rem;
+    border: 2px solid rgba(255,255,255,0.4);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .marker-ring {
+    position: absolute; inset: -4px; border-radius: 50%;
+    border: 2px solid #ef4444; animation: pulse-ring 1.5s infinite;
+  }
+  @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.8); opacity: 0; } }
+</style>
