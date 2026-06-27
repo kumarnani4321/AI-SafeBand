@@ -242,7 +242,7 @@ export class SensorService {
 
           // ── IMMEDIATE risk update on threshold crossing ────────────────
           if (isScream && !this.prevScreamDetected) {
-            console.log(`[Mic] Scream detected! level=${levelPercent}%`);
+            console.log(`[Mic] Scream detected! level=${finalDb} dB`);
             this.calculateLocalRisk();
             this.triggerImmediateSend();
           } else if (!isScream && this.prevScreamDetected) {
