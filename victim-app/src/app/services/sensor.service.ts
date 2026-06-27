@@ -229,8 +229,8 @@ export class SensorService {
         // BOOST SENSITIVITY: multiply by 2000 so even quiet sounds register
         const levelPercent = Math.min(100, Math.round(rms * 2000));
 
-        // Threshold: 5% = ultra-sensitive for testing
-        const SCREAM_THRESHOLD = 5;
+        // Threshold: 35% = calibrated for loud sounds (scream/clap of 80-90 dB)
+        const SCREAM_THRESHOLD = 35;
         const isScream = levelPercent > SCREAM_THRESHOLD;
 
         this.ngZone.run(() => {
