@@ -226,17 +226,18 @@ export class SensorService {
         }
         const rms = Math.sqrt(sumSquares / timeDomainBuffer.length);
         
-        // BOOST SENSITIVITY: multiply by 2000 so even quiet sounds register
-        const levelPercent = Math.min(100, Math.round(rms * 2000));
+        // Convert RMS to estimated dB SPL (ranging from ~30 dB to 100 dB)
+        const dbValue = Math.round(30 + Math.sqrt(rms) * 70);
+        const finalDb = Math.min(100, dbValue);
 
-        // Threshold: 35% = calibrated for loud sounds (scream/clap of 80-90 dB)
-        const SCREAM_THRESHOLD = 35;
-        const isScream = levelPercent > SCREAM_THRESHOLD;
+        // Threshold: 70 dB = calibrated for loud scream or shout (70–80 dB)
+        const SCREAM_THRESHOLD = 70;
+        const isScream = finalDb >= SCREAM_THRESHOLD;
 
         this.ngZone.run(() => {
-          this.audioLevel$.next(levelPercent);
+          this.audioLevel$.next(finalDb);
           this.screamDetected$.next(isScream);
-          this.currentSensorData['audioLevel'] = levelPercent;
+          this.currentSensorData['audioLevel'] = finalDb;
           this.currentSensorData['screamDetected'] = isScream;
 
           // ── IMMEDIATE risk update on threshold crossing ────────────────

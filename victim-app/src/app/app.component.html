@@ -267,13 +267,13 @@
           </span>
         </div>
         <div class="sensor-value" [class.scream-active]="screamDetected">
-          {{ screamDetected ? 'DETECTED!' : audioPercent + '%' }}
+          {{ screamDetected ? 'DETECTED!' : audioLevel + ' dB' }}
         </div>
         <div class="sensor-bar">
           <div class="bar-fill mic-bar" [style.width.%]="audioPercent"
                [class.danger-bar]="screamDetected"></div>
         </div>
-        <div class="sensor-sub">Microphone · Audio Level</div>
+        <div class="sensor-sub">Microphone · &gt;70 dB = Alert</div>
       </div>
 
       <!-- Heart Rate -->
