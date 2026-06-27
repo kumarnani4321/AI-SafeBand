@@ -41,14 +41,11 @@ export interface WSMessage {
 export class WebsocketService implements OnDestroy {
   private ws?: WebSocket;
   private reconnectTimer?: any;
-  private readonly WS_URL = window.location.hostname === 'localhost'
-    ? 'ws://localhost:3000'
-    : 'wss://safeband-backend-4q0a.onrender.com';
+  private readonly WS_URL = 'wss://safeband-backend-4q0a.onrender.com';
 
   message$ = new Subject<WSMessage>();
   connected$ = new Subject<boolean>();
 
-  
   connect(): void {
     this.disconnect();
     try {

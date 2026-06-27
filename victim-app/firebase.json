@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "safeband-ai-4910b",
+    "site": "safepulse-companion",
     "public": "dist/victim-app/browser",
     "ignore": [
       "firebase.json",

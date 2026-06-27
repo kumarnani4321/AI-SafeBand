@@ -2,15 +2,24 @@
      Guardian Dashboard Template
      ═══════════════════════════════════════════════════════════ -->
 
-<!-- Alert Banner -->
-<div class="alert-banner" *ngIf="showAlertBanner && activeAlerts.length > 0">
-  <div class="alert-banner-inner">
-    <span class="alert-banner-icon">🚨</span>
-    <div class="alert-banner-text">
-      <strong>DANGER ALERT FIRED!</strong>
-      <span>{{ (activeAlerts[0]?.text || '').split('\n')[0] }}</span>
+<!-- 1. RECEIVE EMERGENCY ALERT (Enhanced Red Pop-up / Banner) -->
+<div class="emergency-alert-banner" *ngIf="showAlertBanner || criticalCount > 0 || activeAlerts.length > 0">
+  <div class="emerg-banner-content">
+    <div class="emerg-left">
+      <span class="emerg-bell">🚨</span>
+      <div class="emerg-titles">
+        <strong>RECEIVE EMERGENCY ALERT</strong>
+        <span>Guardian receives instant emergency alert with 4 live readings</span>
+      </div>
     </div>
-    <button class="alert-close" (click)="showAlertBanner = false">✕</button>
+    <div class="emerg-readings-strip" *ngIf="selectedVictim || (victims.length > 0 ? victims[0] : null) as v">
+      <div class="er-item">📍 Loc: {{ v.location?.lat?.toFixed(2) || '17.43' }}°N</div>
+      <div class="er-item">🧭 Gyro: {{ (v.shakeIntensity || 0.2).toFixed(1) }}</div>
+      <div class="er-item">🎙️ Audio: {{ v.audioLevel || 15 }}</div>
+      <div class="er-item">❤️ Heart: {{ v.heartRate || 72 }} BPM</div>
+    </div>
+    <div class="emerg-excl">!</div>
+    <button class="emerg-close" (click)="showAlertBanner = false">✕</button>
   </div>
 </div>
 
@@ -20,7 +29,7 @@
     
     <!-- Logo -->
     <div class="sidebar-logo">
-      <span class="logo-icon">🛡️</span>
+      <span class="logo-icon">👥</span>
       <div>
         <h1 class="logo-title">SafeBand</h1>
         <span class="logo-sub">Guardian Dashboard</span>
@@ -135,120 +144,158 @@
       <div class="map-container" #mapContainer></div>
     </div>
 
-    <!-- Selected Victim Detail Panel -->
-    <div class="detail-panel" *ngIf="selectedVictim" [class]="getAlertClass(selectedVictim.alertLevel)">
+    <!-- 2. LIVE PATIENT DASHBOARD (Real-time) -->
+    <div class="live-patient-dashboard" *ngIf="selectedVictim || (victims.length > 0 ? victims[0] : null) as targetV">
       
-      <div class="detail-header">
-        <div class="detail-avatar" [style.background]="getAlertColor(selectedVictim.alertLevel)">
-          {{ selectedVictim.name ? selectedVictim.name[0].toUpperCase() : '?' }}
+      <!-- Top Title & Live Badge -->
+      <div class="lpd-top-bar">
+        <div class="lpd-title-group">
+          <h2>🛡️ LIVE PATIENT DASHBOARD (Real-time)</h2>
+          <span class="patient-name-tag">{{ targetV.name }} <span *ngIf="targetV.phone && targetV.phone !== 'N/A'">({{ targetV.phone }})</span></span>
         </div>
-        <div class="detail-title">
-          <h3>{{ selectedVictim.name }}</h3>
-          <span class="level-badge-lg" [class]="getAlertClass(selectedVictim.alertLevel)">
-            {{ selectedVictim.alertLevel }}
-          </span>
-        </div>
-        <div class="detail-score">
-          <div class="score-circle" [style.border-color]="getAlertColor(selectedVictim.alertLevel)">
-            <span class="score-num">{{ selectedVictim.riskScore }}</span>
-            <span class="score-label">RISK</span>
-          </div>
-        </div>
-        <button class="maps-link-btn" (click)="openGoogleMaps(selectedVictim)" *ngIf="selectedVictim.location">
-          🗺️ Google Maps
-        </button>
-      </div>
-
-      <!-- Victim Metadata Banner (Dynamic Guardian Info) -->
-      <div class="victim-metadata-banner" *ngIf="selectedVictim.phone || selectedVictim.guardianName">
-        <div class="meta-item">
-          <span class="meta-label">📞 Victim Phone</span>
-          <strong class="meta-val">{{ selectedVictim.phone || 'N/A' }}</strong>
-        </div>
-        <div class="meta-item">
-          <span class="meta-label">👥 Assigned Guardian</span>
-          <strong class="meta-val">
-            {{ selectedVictim.guardianName || 'N/A' }}
-            <span class="meta-sub" *ngIf="selectedVictim.guardianPhone">({{ selectedVictim.guardianPhone }})</span>
-          </strong>
+        <div class="live-indicator-pill">
+          <span class="live-blink-dot"></span> LIVE
         </div>
       </div>
 
-      <!-- Sensor Details Grid -->
-      <div class="sensor-details-grid">
+      <!-- 4 Core Vitals Panels Grid -->
+      <div class="lpd-cards-grid">
         
-        <div class="sensor-detail-card">
-          <div class="sd-icon">📍</div>
-          <div class="sd-content">
-            <span class="sd-label">Location</span>
-            <span class="sd-value">
-              {{ selectedVictim.location?.lat?.toFixed(4) }}°N, 
-              {{ selectedVictim.location?.lng?.toFixed(4) }}°E
-            </span>
+        <!-- Panel 1: Location (GPS) -->
+        <div class="lpd-card">
+          <div class="lpd-card-header">
+            <span class="lpd-icon">📍</span>
+            <span class="lpd-label">Location (GPS)</span>
+          </div>
+          <div class="lpd-card-body gps-body">
+            <div class="gps-coords">
+              {{ targetV.location?.lat?.toFixed(4) || '17.4357' }}° N,<br/>
+              {{ targetV.location?.lng?.toFixed(4) || '78.4867' }}° E
+            </div>
+            <div class="gps-pin-graphic">📍</div>
+          </div>
+          <div class="lpd-card-footer">
+            <button class="lpd-action-btn" (click)="openGoogleMaps(targetV)">🗺️ Open Map View</button>
           </div>
         </div>
 
-        <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.heartRate > 120">
-          <div class="sd-icon heartbeat" [class.beating]="selectedVictim.heartRate > 0">❤️</div>
-          <div class="sd-content">
-            <span class="sd-label">Heart Rate</span>
-            <span class="sd-value">{{ selectedVictim.heartRate || '--' }} BPM</span>
-            <span class="sd-sub" *ngIf="selectedVictim.heartRate > 120">⚠️ Elevated</span>
+        <!-- Panel 2: Gyroscope (Motion) -->
+        <div class="lpd-card">
+          <div class="lpd-card-header">
+            <span class="lpd-icon">🧭</span>
+            <span class="lpd-label">Gyroscope (Motion)</span>
+          </div>
+          <div class="lpd-card-body gyro-body">
+            <div class="gyro-axes">
+              <span>X: <strong>{{ getGyroReadings(targetV).x }}</strong></span>
+              <span>Y: <strong>{{ getGyroReadings(targetV).y }}</strong></span>
+              <span>Z: <strong>{{ getGyroReadings(targetV).z }}</strong></span>
+            </div>
+          </div>
+          <div class="lpd-card-footer status-sub" [class.danger-txt]="targetV.shakeIntensity > 10">
+            {{ targetV.shakeIntensity > 10 ? '⚠️ Violent Shake (' + (targetV.shakeIntensity | number:'1.1-1') + 'm/s²)' : '● Normal Movement' }}
           </div>
         </div>
 
-        <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.shakeIntensity > 15">
-          <div class="sd-icon">📳</div>
-          <div class="sd-content">
-            <span class="sd-label">Shake Intensity</span>
-            <span class="sd-value">{{ selectedVictim.shakeIntensity | number:'1.1-1' }} m/s²</span>
-            <span class="sd-sub" *ngIf="selectedVictim.shakeIntensity > 15">⚠️ Violent shake</span>
+        <!-- Panel 3: Audio Level (Live) -->
+        <div class="lpd-card">
+          <div class="lpd-card-header">
+            <span class="lpd-icon">🎙️</span>
+            <span class="lpd-label">Audio Level (Live)</span>
+          </div>
+          <div class="lpd-card-body audio-body">
+            <div class="audio-equalizer" [class.scream-active]="targetV.screamDetected">
+              <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+              <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+              <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+              <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+            </div>
+          </div>
+          <div class="lpd-card-footer status-sub" [class.danger-txt]="targetV.screamDetected">
+            {{ targetV.screamDetected ? '🔴 Scream Detected (' + targetV.audioLevel + 'dB)' : '● Ambient Normal (' + targetV.audioLevel + 'dB)' }}
           </div>
         </div>
 
-        <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.screamDetected">
-          <div class="sd-icon">🎙️</div>
-          <div class="sd-content">
-            <span class="sd-label">Scream Detection</span>
-            <span class="sd-value" [class.scream-val]="selectedVictim.screamDetected">
-              {{ selectedVictim.screamDetected ? '🔴 DETECTED' : '✅ Clear' }}
-            </span>
-            <span class="sd-sub">Audio: {{ selectedVictim.audioLevel }}/255</span>
+        <!-- Panel 4: Heart Rate (Pulsoid App) -->
+        <div class="lpd-card">
+          <div class="lpd-card-header">
+            <span class="lpd-icon heartbeat-icon" [class.beating]="targetV.heartRate > 0">❤️</span>
+            <span class="lpd-label">Heart Rate (Pulsoid App)</span>
           </div>
-        </div>
-
-        <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.sosPressed">
-          <div class="sd-icon">🆘</div>
-          <div class="sd-content">
-            <span class="sd-label">SOS Button</span>
-            <span class="sd-value" [class.sos-val]="selectedVictim.sosPressed">
-              {{ selectedVictim.sosPressed ? '🔴 PRESSED!' : '✅ Not pressed' }}
-            </span>
+          <div class="lpd-card-body hr-body">
+            <div class="hr-bpm-display">
+              <span class="bpm-num">{{ targetV.heartRate || '--' }}</span>
+              <span class="bpm-txt">BPM</span>
+            </div>
+            <div class="heartbeat-wave">
+              <svg viewBox="0 0 100 30" class="wave-svg">
+                <path d="M0,15 L15,15 L20,5 L25,25 L30,10 L35,15 L100,15" fill="none" stroke="#ef4444" stroke-width="2.5"/>
+              </svg>
+            </div>
           </div>
-        </div>
-
-        <div class="sensor-detail-card">
-          <div class="sd-icon">🕐</div>
-          <div class="sd-content">
-            <span class="sd-label">Last Signal</span>
-            <span class="sd-value">{{ formatTime(selectedVictim.lastSeen) }}</span>
+          <div class="lpd-card-footer status-sub" [class.danger-txt]="targetV.heartRate > 100">
+            {{ targetV.heartRate > 100 ? '⚠️ Elevated Pulse' : '● Resting Pulse' }}
           </div>
         </div>
 
       </div>
 
-      <!-- Risk Reasons -->
-      <div class="risk-reasons-panel" *ngIf="selectedVictim.riskReasons && selectedVictim.riskReasons.length > 0">
-        <div class="reasons-header">Risk Triggers:</div>
-        <div class="reason-tag" *ngFor="let r of selectedVictim.riskReasons">{{ r }}</div>
+      <!-- Risk Reasons Tag Cloud -->
+      <div class="risk-reasons-bar" *ngIf="targetV.riskReasons && targetV.riskReasons.length > 0">
+        <span class="rr-title">⚠️ Active Risk Triggers:</span>
+        <span class="reason-tag" *ngFor="let r of targetV.riskReasons">{{ r }}</span>
+      </div>
+
+      <!-- 3. REAL TIME MONITORING BANNER -->
+      <div class="realtime-monitoring-strip">
+        <span class="eye-icon">👁️</span>
+        <div class="rtm-text">
+          <strong>REAL TIME MONITORING</strong>
+          <span>Guardian can view all 4 readings of patient in real time anytime</span>
+        </div>
+        <div class="sync-badge">🔄 REAL TIME SYNC</div>
+      </div>
+
+      <!-- 4. HEALTH AI CHATBOT -->
+      <div class="health-ai-chatbot">
+        <div class="chatbot-header">
+          <div class="bot-avatar">🤖</div>
+          <div class="bot-info">
+            <h3>HEALTH AI CHATBOT</h3>
+            <span>Ask health queries & get instant smart medical/emergency assistance</span>
+          </div>
+          <div class="bot-status-pill">● AI Ready</div>
+        </div>
+
+        <div class="chatbot-messages-area">
+          <div class="chat-bubble" *ngFor="let msg of chatMessages" [class.msg-ai]="msg.sender === 'ai'" [class.msg-user]="msg.sender === 'user'">
+            <div class="bubble-avatar">{{ msg.sender === 'ai' ? '🤖' : '👤' }}</div>
+            <div class="bubble-content">
+              <p>{{ msg.text }}</p>
+              <div class="bubble-meta">
+                <span class="bubble-time">{{ msg.time }}</span>
+                <span *ngIf="msg.sender === 'user'" class="checkmarks">✓✓</span>
+              </div>
+            </div>
+          </div>
+          <div class="chat-thinking" *ngIf="isChatThinking">
+            <span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span>
+          </div>
+        </div>
+
+        <div class="chatbot-input-bar">
+          <input type="text" [(ngModel)]="chatInput" (keyup.enter)="sendChatQuestion()" placeholder="Type your health question (e.g. What does a high heart rate mean?)..." />
+          <button class="chat-send-btn" (click)="sendChatQuestion()">➤</button>
+        </div>
       </div>
 
     </div>
 
-    <!-- No selection placeholder -->
-    <div class="no-selection" *ngIf="!selectedVictim">
-      <div class="no-sel-icon">👆</div>
-      <p>Click a victim on the map or sidebar to view details</p>
+    <!-- Empty State when no victims exist at all -->
+    <div class="no-selection" *ngIf="victims.length === 0">
+      <div class="no-sel-icon">📡</div>
+      <p>Waiting for live patient stream from mobile app...</p>
+      <p class="no-sel-sub">Open Victim App and press Start Monitoring</p>
     </div>
 
   </main>

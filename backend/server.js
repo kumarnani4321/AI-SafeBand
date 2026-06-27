@@ -1,7 +1,7 @@
 /**
- * AI SafeBand Backend Server
+ * SafePulse AI Backend Server
  * Express + WebSocket Risk Engine
- * 
+ *
  * Risk Scoring:
  *   Shake (accelerometer) > threshold  → +40 pts
  *   Scream detected (mic)              → +35 pts
@@ -44,6 +44,15 @@ app.use(express.json());
 // ─── In-memory Data Store ────────────────────────────────────────────────────
 const victims = new Map();       // victimId → victimData
 const alertHistory = [];         // All fired alerts
+
+// ─── Phone Normalizer: strips non-digits, takes last 10, adds +91 ────────────
+function normalizePhone(phone) {
+  if (!phone) return phone;
+  const digits = phone.replace(/\D/g, '');
+  const last10 = digits.slice(-10);
+  if (last10.length === 10) return `+91${last10}`;
+  return phone; // return as-is if not 10 digits
+}
 const connectedGuardians = new Set(); // WebSocket clients (guardians)
 
 // ─── Risk Engine ─────────────────────────────────────────────────────────────
@@ -89,15 +98,28 @@ function calculateRiskScore(sensorData) {
   return { score: Math.min(score, 100), reasons, alertTriggered, alertLevel };
 }
 
+function formatSMSDateTime() {
+  const date = new Date();
+  const options = {
+    timeZone: 'Asia/Kolkata',
+    day: 'numeric',
+    month: 'short',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+  return date.toLocaleString('en-IN', options).replace(/,/, '');
+}
+
 // ─── SMS Alert (Twilio / Mock) ────────────────────────────────────────────────
 async function sendSMS(victimId, victimData, riskResult) {
   const { lat, lng } = victimData.location || { lat: 0, lng: 0 };
   const mapsLink = `https://maps.google.com/?q=${lat},${lng}`;
-  const targetPhone = victimData.guardianPhone || process.env.GUARDIAN_PHONE;
+  const rawPhone = victimData.guardianPhone || process.env.GUARDIAN_PHONE;
+  const targetPhone = normalizePhone(rawPhone);
 
-  const textMessage = `SafeBand Alert: ${victimData.name || 'User'}!
-Risk:${riskResult.score}
-Loc:${mapsLink}`;
+  // Compact SMS — fits within Twilio 160-char free trial limit with Date & Time
+  const textMessage = `SafePulse AI ALERT!\n${victimData.name || 'User'} needs help!\nRisk:${riskResult.alertLevel} (${riskResult.score}/100)\nTime:${formatSMSDateTime()}\nLoc:${mapsLink}`;
 
   const messageRecord = {
     id: uuidv4(),
@@ -105,7 +127,8 @@ Loc:${mapsLink}`;
     to: targetPhone,
     text: textMessage,
     sent: false,
-    victimId
+    victimId,
+    phone: victimData.phone
   };
 
   alertHistory.unshift(messageRecord);
@@ -218,13 +241,14 @@ app.post('/api/sensor', (req, res) => {
     lastSeen: timestamp || new Date().toISOString()
   };
 
-  victims.set(victimId, victimData);
+  const uniqueKey = (phone && phone !== 'N/A') ? normalizePhone(phone) : victimId;
+  victims.set(uniqueKey, victimData);
 
   // Fire alert if score >= 70
   let alertFired = null;
   if (riskResult.alertTriggered) {
     // Debounce: only send SMS if not alerted in last 30 seconds
-    const lastAlert = alertHistory.find(a => a.victimId === victimId);
+    const lastAlert = alertHistory.find(a => a.phone === victimData.phone);
     const lastAlertAge = lastAlert ? (Date.now() - new Date(lastAlert.timestamp).getTime()) : Infinity;
 
     if (lastAlertAge > 30000) {
@@ -286,6 +310,38 @@ app.get('/api/health', (req, res) => {
     alerts: alertHistory.length,
     timestamp: new Date().toISOString()
   });
+});
+
+// GET /api/chat — Real-time AI Health Assistant
+app.get('/api/chat', (req, res) => {
+  const query = (req.query.q || '').toLowerCase().trim();
+  let response = "I am your AI Health Assistant. Ask me basic medical questions (e.g. CPR, bleeding, heart rate, panic, shock) or how to keep safe.";
+
+  if (!query) {
+    return res.json({ reply: response });
+  }
+
+  if (query.includes('hi') || query.includes('hello') || query.includes('hey')) {
+    response = "Hello! I am your SafePulse AI Health Assistant. How can I help you with your health or safety today? Try asking about 'first aid' or 'cpr'.";
+  } else if (query.includes('cpr') || query.includes('cardiac') || query.includes('breath')) {
+    response = "🏥 CPR Guideline:\n1. Call emergency services.\n2. Push hard and fast in the center of the chest (100-120 compressions per minute).\n3. Deliver rescue breaths if trained.";
+  } else if (query.includes('bleed') || query.includes('cut') || query.includes('wound')) {
+    response = "🩸 Bleeding Management:\n1. Apply firm, direct pressure to the wound with a clean cloth.\n2. Elevate the injured limb above heart level.\n3. Keep pressing until bleeding stops. Seek medical care if deep.";
+  } else if (query.includes('panic') || query.includes('scream') || query.includes('fear') || query.includes('anxiety')) {
+    response = "🧘 Dealing with Panic/Fear:\n1. Sit down and plant your feet firmly on the ground.\n2. Focus on slow, deep breathing: inhale for 4 seconds, hold for 4, exhale for 4.\n3. SafePulse AI has notified your guardian. Stay where you are; help is on the way.";
+  } else if (query.includes('heart') || query.includes('pulse') || query.includes('bpm')) {
+    response = "❤️ Heart Rate Info:\nA normal resting heart rate is 60-100 BPM. If the app detects >120 BPM during high stress, it raises your Risk Score. Cover the camera lens fully to get an accurate reading!";
+  } else if (query.includes('shock') || query.includes('faint')) {
+    response = "⚡ Shock/Fainting:\n1. Lay the person flat on their back.\n2. Elevate their feet about 12 inches.\n3. Keep them warm and comfortable. Do not give them anything to eat or drink.";
+  } else if (query.includes('head') || query.includes('concussion') || query.includes('fall')) {
+    response = "🧠 Head Injury:\n1. Keep the person completely still.\n2. Apply a cold pack wrapped in a cloth to reduce swelling.\n3. Watch for dizziness, vomiting, or confusion—seek immediate medical help if present.";
+  } else if (query.includes('thank') || query.includes('ok') || query.includes('good')) {
+    response = "You're very welcome! Stay safe and healthy. I am always here to assist you.";
+  } else {
+    response = "I understand you are asking about safety or health. For immediate emergencies, please press the SOS button. For first aid, you can ask me about 'CPR', 'bleeding', 'elevated heart rate', or 'panic attack'.";
+  }
+
+  res.json({ reply: response });
 });
 
 // ─── Start Server ─────────────────────────────────────────────────────────────

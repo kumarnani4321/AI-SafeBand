@@ -30,7 +30,9 @@ export interface RiskResponse {
 
 @Injectable({ providedIn: 'root' })
 export class SensorService {
-  private readonly BACKEND_URL = 'https://safeband-backend-4q0a.onrender.com/api';
+  private readonly BACKEND_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000/api'
+    : 'https://safeband-backend-4q0a.onrender.com/api';
   private readonly victimId = localStorage.getItem('victimId') || (() => {
     const id = uuidv4();
     localStorage.setItem('victimId', id);
@@ -120,10 +122,13 @@ export class SensorService {
 
       await this.requestPermissions();
       this.startLocationTracking();
-      await this.startMicrophoneDetection();
       await this.startAccelerometerDetection();
-      this.startDataTransmission();
+
       this.isMonitoring$.next(true);
+
+      // Start decibel analyzer
+      await this.startMicrophoneDetection();
+      this.startDataTransmission();
       return true;
     } catch (err) {
       console.error('Failed to start monitoring:', err);
@@ -146,7 +151,7 @@ export class SensorService {
 
   // ─── Permissions ───────────────────────────────────────────────────────────
   private async requestPermissions(): Promise<void> {
-    // Microphone — required
+    // Grab mic stream for the decibel/RMS analyzer on all platforms
     const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     this.audioStream = micStream;
     this.permissionsGranted$.next(true);
@@ -177,6 +182,8 @@ export class SensorService {
       }
     }, 3000);
   }
+
+
 
   // ─── Microphone Scream Detection (RMS-based) ────────────────────────────
   // HOW IT WORKS:
@@ -501,9 +508,11 @@ export class SensorService {
   triggerSOS(): void {
     this.sosPressed$.next(true);
     this.currentSensorData['sosPressed'] = true;
+    this.triggerImmediateSend();
     setTimeout(() => {
       this.sosPressed$.next(false);
       this.currentSensorData['sosPressed'] = false;
+      this.triggerImmediateSend();
     }, 10000);
   }
 

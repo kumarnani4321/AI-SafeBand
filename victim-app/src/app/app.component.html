@@ -1,323 +1,720 @@
 <!-- ═══════════════════════════════════════════════════════════
-     AI SafeBand - Victim App Template
+     SafePulse AI - Unified App Template
      ═══════════════════════════════════════════════════════════ -->
 
-<!-- SETUP SCREEN -->
-<div class="setup-screen" *ngIf="isSetup">
-  <div class="setup-content slide-up">
-
-    <!-- Logo -->
+<!-- ================= ROLE SELECTION ================= -->
+<div class="setup-screen" *ngIf="userRole === 'NONE'">
+  <div class="setup-content slide-up" style="text-align: center;">
     <div class="logo-container">
       <div class="shield-glow">
         <div class="shield-icon">🛡️</div>
       </div>
-      <h1 class="app-title">AI SafeBand</h1>
-      <p class="app-subtitle">Smart Women Safety System</p>
+      <h1 class="app-title">SafePulse AI</h1>
+      <p class="app-subtitle">Your Smart Safety Companion ⭐</p>
     </div>
 
-    <!-- Feature chips -->
-    <div class="feature-chips">
-      <span class="chip">📡 GPS</span>
-      <span class="chip">📳 Shake</span>
-      <span class="chip">🎙️ Scream</span>
-      <span class="chip">❤️ Heart Rate</span>
-      <span class="chip sos-chip">🆘 SOS</span>
+    <div class="role-selection-cards">
+      <div class="setup-card role-card" (click)="selectRole('VICTIM')" style="cursor: pointer;">
+        <div style="font-size: 3rem; margin-bottom: 10px;">👤</div>
+        <h2>I am a User</h2>
+        <p class="setup-desc">I want to be protected by SafePulse AI.</p>
+      </div>
+      <div class="setup-card role-card" (click)="selectRole('GUARDIAN')" style="cursor: pointer;">
+        <div style="font-size: 3rem; margin-bottom: 10px;">👥</div>
+        <h2>I am a Guardian</h2>
+        <p class="setup-desc">I want to monitor someone's safety.</p>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- ── ALREADY REGISTERED: Fast-Track Card ── -->
-    <div class="setup-card registered-card" *ngIf="isAlreadyRegistered">
-      <div class="registered-welcome">
-        <div class="reg-avatar">{{ victimName.charAt(0).toUpperCase() }}</div>
-        <div class="reg-info">
-          <p class="reg-label">Welcome back!</p>
-          <p class="reg-name">{{ victimName }}</p>
-          <p class="reg-guardian">🛡️ Guardian: <strong>{{ guardianName }}</strong> · {{ guardianPhone }}</p>
+<!-- ================= VICTIM FLOW ================= -->
+<ng-container *ngIf="userRole === 'VICTIM'">
+  <!-- SETUP SCREEN -->
+  <div class="setup-screen" *ngIf="isSetup">
+    <button class="back-btn" (click)="resetRole()">← Back</button>
+    <div class="setup-content slide-up">
+
+      <!-- Logo -->
+      <div class="logo-container">
+        <div class="shield-glow">
+          <div class="shield-icon">👤</div>
+        </div>
+        <h1 class="app-title">User Setup</h1>
+        <p class="app-subtitle">SafePulse AI — Your Smart Safety Companion</p>
+      </div>
+
+      <!-- Feature chips -->
+      <div class="feature-chips">
+        <span class="chip chip-gps">📡 GPS Tracking</span>
+        <span class="chip chip-shake">📳 Shake Detection</span>
+        <span class="chip chip-mic">🎙️ Scream Alert</span>
+        <span class="chip chip-heart">❤️ Heart Rate</span>
+        <span class="chip sos-chip">🆘 SOS</span>
+      </div>
+
+      <!-- ── ALREADY REGISTERED: Fast-Track Card ── -->
+      <div class="setup-card registered-card" *ngIf="profileSaved">
+        <div class="registered-welcome">
+          <div class="reg-avatar">{{ victimName.charAt(0).toUpperCase() }}</div>
+          <div class="reg-info">
+            <p class="reg-label">Welcome back!</p>
+            <p class="reg-name">{{ victimName }}</p>
+            <p class="reg-guardian">🛡️ Guardian: <strong>{{ guardianName }}</strong> · {{ guardianPhone }}</p>
+          </div>
+        </div>
+        <button class="start-btn pulse-glow" (click)="startWithRegistered()">
+          <span class="btn-icon">⚡</span>
+          Continue as {{ victimName }}
+        </button>
+        <button class="edit-btn" (click)="showEditForm = !showEditForm">
+          {{ showEditForm ? '▲ Hide form' : '✏️ Update details' }}
+        </button>
+
+        <!-- Inline Edit Form (collapsed by default) -->
+        <div class="edit-form-collapse" *ngIf="showEditForm">
+          <div class="divider-label">Update Your Details</div>
+          <div class="setup-form-grid">
+            <div class="input-group">
+              <label for="victimNameEdit">Your Name</label>
+              <input id="victimNameEdit" type="text" [(ngModel)]="victimName" placeholder="e.g., Sara" class="name-input" autocomplete="name">
+            </div>
+            <div class="input-group">
+              <label for="victimPhoneEdit">Your Phone Number</label>
+              <input id="victimPhoneEdit" type="tel" [(ngModel)]="victimPhone" placeholder="e.g. 9876543210" class="name-input">
+            </div>
+            <div class="input-group">
+              <label for="guardianNameEdit">Guardian's Name</label>
+              <input id="guardianNameEdit" type="text" [(ngModel)]="guardianName" placeholder="e.g., John (Father)" class="name-input">
+            </div>
+            <div class="input-group">
+              <label for="guardianPhoneEdit">Guardian's Phone Number</label>
+              <input id="guardianPhoneEdit" type="tel" [(ngModel)]="guardianPhone" placeholder="e.g. 8765432109" class="name-input">
+            </div>
+          </div>
+          <div class="setup-error" *ngIf="setupError">⚠️ {{ setupError }}</div>
+          <button class="start-btn" (click)="startMonitoring()">
+            <span class="btn-icon">🛡️</span> Save & Start Protection
+          </button>
         </div>
       </div>
-      <button class="start-btn pulse-glow" (click)="startWithRegistered()">
-        <span class="btn-icon">⚡</span>
-        Continue as {{ victimName }}
-      </button>
-      <button class="edit-btn" (click)="showEditForm = !showEditForm">
-        {{ showEditForm ? '▲ Hide form' : '✏️ Update details' }}
-      </button>
 
-      <!-- Inline Edit Form (collapsed by default) -->
-      <div class="edit-form-collapse" *ngIf="showEditForm">
-        <div class="divider-label">Update Your Details</div>
+      <!-- ── NEW USER: Full Registration Card ── -->
+      <div class="setup-card" *ngIf="!profileSaved">
+        <p class="setup-desc">Register your emergency contact details.<br>
+          Alerts will be routed to your respective guardian dynamically.</p>
+
         <div class="setup-form-grid">
           <div class="input-group">
-            <label for="victimNameEdit">Your Name</label>
-            <input id="victimNameEdit" type="text" [(ngModel)]="victimName" placeholder="e.g., Sara" class="name-input" autocomplete="name">
+            <label for="victimName">Your Name</label>
+            <input id="victimName" type="text" [(ngModel)]="victimName"
+                   placeholder="e.g., Sara" class="name-input" autocomplete="name">
           </div>
           <div class="input-group">
-            <label for="victimPhoneEdit">Your Phone Number</label>
-            <input id="victimPhoneEdit" type="tel" [(ngModel)]="victimPhone" placeholder="e.g., +91-9876543210" class="name-input">
+            <label for="victimPhone">Your Phone Number</label>
+            <input id="victimPhone" type="tel" [(ngModel)]="victimPhone"
+                   placeholder="e.g. 9876543210" class="name-input">
           </div>
           <div class="input-group">
-            <label for="guardianNameEdit">Guardian's Name</label>
-            <input id="guardianNameEdit" type="text" [(ngModel)]="guardianName" placeholder="e.g., John (Father)" class="name-input">
+            <label for="guardianName">Guardian's Name</label>
+            <input id="guardianName" type="text" [(ngModel)]="guardianName"
+                   placeholder="e.g., John (Father)" class="name-input">
           </div>
           <div class="input-group">
-            <label for="guardianPhoneEdit">Guardian's Phone Number</label>
-            <input id="guardianPhoneEdit" type="tel" [(ngModel)]="guardianPhone" placeholder="e.g., +91-8765432109" class="name-input">
+            <label for="guardianPhone">Guardian's Phone Number</label>
+            <input id="guardianPhone" type="tel" [(ngModel)]="guardianPhone"
+                   placeholder="e.g. 8765432109" class="name-input">
           </div>
         </div>
+
         <div class="setup-error" *ngIf="setupError">⚠️ {{ setupError }}</div>
+
         <button class="start-btn" (click)="startMonitoring()">
-          <span class="btn-icon">🛡️</span> Save & Start Protection
+          <span class="btn-icon">🛡️</span>
+          Start Protection
         </button>
+      </div>
+
+      <!-- Firebase sync status -->
+      <div class="sync-status" *ngIf="firebaseSynced">
+        <span class="sync-dot"></span> 🛡️ SafePulse Protection Enabled
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MONITORING SCREEN -->
+  <div class="monitoring-screen" *ngIf="!isSetup" [class.alert-active]="alertTriggered">
+
+    <!-- Alert Banner -->
+    <div class="alert-banner" *ngIf="alertTriggered" [class]="alertClass">
+      <span class="alert-icon">🚨</span>
+      <div class="alert-text">
+        <strong>{{ alertLevel }} ALERT!</strong>
+        <span>Guardian has been notified via SMS</span>
+      </div>
+      <span class="alert-score">{{ riskScore }}</span>
+    </div>
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="header-logo-wrap">
+          <span class="header-shield">👤</span>
+        </div>
+        <div>
+          <h2 class="header-title">SafePulse AI</h2>
+          <span class="header-user">{{ victimName }}</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="conn-badge" [class.conn-online]="backendConnected">
+          <span class="conn-dot-sm"></span>
+          {{ backendConnected ? 'Live' : 'Offline' }}
+        </div>
+        <button class="stop-btn" (click)="stopMonitoring()">⏹ Stop</button>
+      </div>
+    </header>
+
+    <!-- Guardian Banner -->
+    <div class="guardian-preview-card">
+      <div class="g-avatar-wrap">
+        <div class="g-avatar">👥</div>
+      </div>
+      <div class="g-text">
+        <span class="g-label">🛡️ ACTIVE GUARDIAN</span>
+        <strong class="g-name">{{ guardianName }}</strong>
+        <span class="g-phone">{{ guardianPhone }}</span>
+      </div>
+      <button class="edit-profile-btn" (click)="editRegistration()">✏️ Edit</button>
+    </div>
+
+    <!-- Risk Score Ring -->
+    <div class="risk-section">
+      <div class="risk-ring-outer">
+        <div class="risk-ring" [class]="alertClass">
+          <svg class="ring-svg" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" [attr.stroke]="riskBarColor"
+                    stroke-width="10" stroke-linecap="round"
+                    [style.stroke-dasharray]="'314'"
+                    [style.stroke-dashoffset]="314 - (314 * riskScore / 100)"
+                    [style.transform]="'rotate(-90deg)'"
+                    [style.transform-origin]="'center'"
+                    style="transition: stroke-dashoffset 1s ease, stroke 0.5s ease; filter: drop-shadow(0 0 8px currentColor)"/>
+          </svg>
+          <div class="ring-content">
+            <div class="risk-number" [style.color]="riskBarColor">{{ riskScore }}</div>
+            <div class="risk-label">RISK SCORE</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="level-badge" [class]="alertClass">
+        <span *ngIf="alertLevel === 'CRITICAL'">⚠️ CRITICAL</span>
+        <span *ngIf="alertLevel === 'DANGER'">🚨 DANGER</span>
+        <span *ngIf="alertLevel === 'WARNING'">⚡ WARNING</span>
+        <span *ngIf="alertLevel === 'SAFE'">✅ SAFE</span>
+      </div>
+
+      <div class="risk-reasons" *ngIf="reasons.length > 0">
+        <div class="reason-item" *ngFor="let r of reasons">{{ r }}</div>
       </div>
     </div>
 
-    <!-- ── NEW USER: Full Registration Card ── -->
-    <div class="setup-card" *ngIf="!isAlreadyRegistered">
-      <p class="setup-desc">Register your emergency contact details.<br>
-        Alerts will be routed to your respective guardian dynamically.</p>
+    <!-- Sensor Cards Grid -->
+    <div class="sensors-grid">
 
-      <div class="setup-form-grid">
-        <div class="input-group">
-          <label for="victimName">Your Name</label>
-          <input id="victimName" type="text" [(ngModel)]="victimName"
-                 placeholder="e.g., Sara" class="name-input" autocomplete="name">
+      <!-- Location -->
+      <div class="sensor-card" [class.active]="location !== null">
+        <div class="sensor-header">
+          <span class="sensor-icon">📍</span>
+          <span class="sensor-name">Location</span>
+          <span class="sensor-status" [class.ok]="location !== null">
+            {{ location ? '●' : '○' }}
+          </span>
         </div>
-        <div class="input-group">
-          <label for="victimPhone">Your Phone Number</label>
-          <input id="victimPhone" type="tel" [(ngModel)]="victimPhone"
-                 placeholder="e.g., +91-9876543210" class="name-input">
+        <div class="sensor-value location-val" (click)="openMapsLink()">
+          {{ locationString }}
         </div>
-        <div class="input-group">
-          <label for="guardianName">Guardian's Name</label>
-          <input id="guardianName" type="text" [(ngModel)]="guardianName"
-                 placeholder="e.g., John (Father)" class="name-input">
+        <div class="sensor-sub">GPS · Tap to open Maps</div>
+      </div>
+
+      <!-- Shake / Accelerometer -->
+      <div class="sensor-card" [class.active]="shakeIntensity > 2.5" [class.danger]="shakeIntensity > 5">
+        <div class="sensor-header">
+          <span class="sensor-icon">📳</span>
+          <span class="sensor-name">Shake</span>
+          <span class="sensor-status" [class.ok]="shakeIntensity > 2.5" [class.alert]="shakeIntensity > 5">●</span>
         </div>
-        <div class="input-group">
-          <label for="guardianPhone">Guardian's Phone Number</label>
-          <input id="guardianPhone" type="tel" [(ngModel)]="guardianPhone"
-                 placeholder="e.g., +91-8765432109" class="name-input">
+        <div class="sensor-value">
+          {{ shakeIntensity | number:'1.1-1' }}
+          <span class="unit">m/s²</span>
+        </div>
+        <div class="sensor-bar">
+          <div class="bar-fill shake-bar" [style.width.%]="Math.min(100, shakeIntensity * 15)"></div>
+        </div>
+        <div class="sensor-sub">Accelerometer · &gt;5 = Alert</div>
+      </div>
+
+      <!-- Microphone / Scream -->
+      <div class="sensor-card" [class.active]="audioLevel > 15" [class.danger]="screamDetected">
+        <div class="sensor-header">
+          <span class="sensor-icon">🎙️</span>
+          <span class="sensor-name">Scream</span>
+          <span class="sensor-status" [class.alert]="screamDetected">
+            {{ screamDetected ? '🔴' : '●' }}
+          </span>
+        </div>
+        <div class="sensor-value" [class.scream-active]="screamDetected">
+          {{ screamDetected ? 'DETECTED!' : audioPercent + '%' }}
+        </div>
+        <div class="sensor-bar">
+          <div class="bar-fill mic-bar" [style.width.%]="audioPercent"
+               [class.danger-bar]="screamDetected"></div>
+        </div>
+        <div class="sensor-sub">Microphone · Audio Level</div>
+      </div>
+
+      <!-- Heart Rate -->
+      <div class="sensor-card"
+           [class.active]="heartRate > 0"
+           [class.danger]="heartRate > 120"
+           [class.sensor-card-measuring]="heartRateStatus === 'measuring'">
+        <div class="sensor-header">
+          <span class="sensor-icon heartbeat-icon" [class.beating]="heartRate > 0">❤️</span>
+          <span class="sensor-name">Heart Rate</span>
+          <span class="sensor-status"
+                [class.ok]="heartRate > 0 && heartRate <= 120"
+                [class.alert]="heartRate > 120">●</span>
+        </div>
+        <div class="sensor-value">
+          {{ heartRate > 0 ? heartRate : '--' }}
+          <span class="unit" *ngIf="heartRate > 0">BPM</span>
+        </div>
+        <div class="heart-rate-sub" *ngIf="!cameraActive">
+          <button class="camera-btn" (click)="toggleCamera()">
+            📷 Enable Camera rPPG
+          </button>
+        </div>
+        <div *ngIf="cameraActive">
+          <div class="hr-status-row" *ngIf="heartRateStatus === 'measuring'">
+            <span class="hr-status-dot measuring-dot"></span>
+            <span class="hr-status-text">Collecting signal...</span>
+          </div>
+          <div class="hr-status-row" *ngIf="heartRateStatus === 'noSignal'">
+            <span class="hr-status-dot nosignal-dot"></span>
+            <span class="hr-status-text warn-text">👆 Cover camera fully</span>
+          </div>
+          <div class="hr-status-row" *ngIf="heartRateStatus === 'ok'">
+            <span class="hr-status-dot ok-dot"></span>
+            <span class="hr-status-text">Signal OK</span>
+          </div>
+          <div class="sensor-sub">
+            rPPG · &gt;120 BPM = Alert
+            <button class="camera-stop-btn" (click)="toggleCamera()">Stop</button>
+          </div>
         </div>
       </div>
 
-      <div class="setup-error" *ngIf="setupError">⚠️ {{ setupError }}</div>
+    </div>
 
-      <button class="start-btn" (click)="startMonitoring()">
-        <span class="btn-icon">🛡️</span>
-        Start Protection
+    <!-- SOS Button -->
+    <div class="sos-section">
+      <div class="sos-label-top">Emergency Button</div>
+      <button class="sos-button" (click)="triggerSOS()" [class.sos-active]="sosPressed"
+              [disabled]="sosPressed">
+        <div class="sos-ring sos-ring-1"></div>
+        <div class="sos-ring sos-ring-2"></div>
+        <div class="sos-inner">
+          <span class="sos-text">SOS</span>
+          <span class="sos-sub" *ngIf="!sosPressed">Press for<br>Emergency</span>
+          <span class="sos-sub sos-counting" *ngIf="sosPressed">Alert sent!<br>({{ sosCountdown }}s)</span>
+        </div>
+      </button>
+      <p class="sos-hint">Instantly triggers alert + notifies guardian</p>
+    </div>
+
+    <!-- How it Works Info -->
+    <div class="info-footer">
+      <div class="flow-item">
+        <span class="flow-icon">📡</span>
+        <span>Signals captured</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">
+        <span class="flow-icon">🧠</span>
+        <span>Risk scored</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">
+        <span class="flow-icon">📱</span>
+        <span>SMS sent</span>
+      </div>
+    </div>
+
+  </div>
+</ng-container>
+
+<!-- ================= GUARDIAN FLOW ================= -->
+<ng-container *ngIf="userRole === 'GUARDIAN'">
+  
+      <!-- GUARDIAN LOGIN -->
+      <div class="setup-screen" *ngIf="!isDashboardActive">
+        <button class="back-btn" (click)="resetRole()">← Back</button>
+        <div class="setup-content slide-up">
+          <div class="logo-container">
+            <div class="shield-glow">
+              <div class="shield-icon">👥</div>
+            </div>
+            <h1 class="app-title">Guardian Login</h1>
+            <p class="app-subtitle">Log in to view your assigned users.</p>
+          </div>
+    
+          <div class="setup-card">
+            <div class="setup-form-grid">
+              <div class="input-group">
+                <label for="guardianLoginName">Your Name (Guardian)</label>
+                <input id="guardianLoginName" type="text" [(ngModel)]="loginGuardianName"
+                       placeholder="e.g., John (Father)" class="name-input">
+              </div>
+              <div class="input-group">
+                <label for="guardianLoginPhone">Your Phone Number</label>
+                  <input id="guardianLoginPhone" type="tel" [(ngModel)]="loginGuardianPhone"
+                         placeholder="e.g. 8765432109" class="name-input">
+              </div>
+            </div>
+    
+            <div class="setup-error" *ngIf="guardianLoginError">⚠️ {{ guardianLoginError }}</div>
+    
+            <button class="start-btn" (click)="loginGuardian()" [disabled]="guardianIsLoading">
+              <span class="btn-icon" *ngIf="!guardianIsLoading">👥</span>
+              <span class="btn-icon" *ngIf="guardianIsLoading">⏳</span>
+              {{ guardianIsLoading ? 'Verifying...' : 'Login' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+  <!-- GUARDIAN DASHBOARD -->
+  <div class="dashboard-wrapper" *ngIf="isDashboardActive">
+    
+    <!-- Alert Banner -->
+    <div class="guardian-alert-banner" *ngIf="showAlertBanner && activeAlerts.length > 0">
+      <div class="alert-banner-inner">
+        <span class="alert-banner-icon">🚨</span>
+        <div class="alert-banner-text">
+          <strong>DANGER ALERT FIRED!</strong>
+          <span>{{ (activeAlerts[0]?.text || '').split('\n')[0] }}</span>
+        </div>
+        <button class="alert-close" (click)="showAlertBanner = false">✕</button>
+      </div>
+    </div>
+
+    <!-- Mobile Tabs Navigation -->
+    <div class="guardian-tabs">
+      <button class="g-tab-btn" [class.active]="activeGuardianTab === 'users'" (click)="activeGuardianTab = 'users'">
+        <span class="g-tab-icon">👥</span> Users ({{ guardianVictims.length }})
+      </button>
+      <button class="g-tab-btn" [class.active]="activeGuardianTab === 'feed'" (click)="activeGuardianTab = 'feed'" [disabled]="!selectedVictim">
+        <span class="g-tab-icon">📊</span> Live Feed
+      </button>
+      <button class="g-tab-btn" [class.active]="activeGuardianTab === 'alerts'" (click)="activeGuardianTab = 'alerts'">
+        <span class="g-tab-icon">📩</span> SMS Log
       </button>
     </div>
 
-    <!-- Firebase sync status -->
-    <div class="sync-status" *ngIf="firebaseSynced">
-      <span class="sync-dot"></span> Synced with SafeBand Cloud
-    </div>
-
-  </div>
-</div>
-
-<!-- MONITORING SCREEN -->
-<div class="monitoring-screen" *ngIf="!isSetup" [class.alert-active]="alertTriggered">
-
-  <!-- Alert Banner -->
-  <div class="alert-banner" *ngIf="alertTriggered" [class]="alertClass">
-    <span class="alert-icon">🚨</span>
-    <div class="alert-text">
-      <strong>{{ alertLevel }} ALERT!</strong>
-      <span>Guardian has been notified via SMS</span>
-    </div>
-    <span class="alert-score">{{ riskScore }}</span>
-  </div>
-
-  <!-- Header -->
-  <header class="app-header">
-    <div class="header-left">
-      <span class="header-shield">🛡️</span>
-      <div>
-        <h2 class="header-title">SafeBand</h2>
-        <span class="header-user">{{ victimName }}</span>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="connection-dot" [class.connected]="backendConnected"
-           [title]="backendConnected ? 'Connected to backend' : 'Offline mode'">
-        {{ backendConnected ? '🟢' : '🔴' }}
-      </div>
-      <button class="stop-btn" (click)="stopMonitoring()">Stop</button>
-    </div>
-  </header>
-
-  <!-- Guardian Banner -->
-  <div class="guardian-preview-card">
-    <div class="g-avatar">👥</div>
-    <div class="g-text">
-      <span class="g-label">ACTIVE GUARDIAN</span>
-      <strong class="g-name">{{ guardianName }} ({{ guardianPhone }})</strong>
-    </div>
-    <button class="edit-profile-btn" (click)="editRegistration()">✏️ Edit Info</button>
-  </div>
-
-  <!-- Risk Score Ring -->
-  <div class="risk-section">
-    <div class="risk-ring" [class]="alertClass">
-      <svg class="ring-svg" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
-        <circle cx="60" cy="60" r="50" fill="none" [attr.stroke]="riskBarColor"
-                stroke-width="8" stroke-linecap="round"
-                [style.stroke-dasharray]="'314'"
-                [style.stroke-dashoffset]="314 - (314 * riskScore / 100)"
-                [style.transform]="'rotate(-90deg)'"
-                [style.transform-origin]="'center'"
-                style="transition: stroke-dashoffset 1s ease, stroke 0.5s ease"/>
-      </svg>
-      <div class="ring-content">
-        <div class="risk-number">{{ riskScore }}</div>
-        <div class="risk-label">RISK</div>
-      </div>
-    </div>
-
-    <div class="level-badge" [class]="alertClass">
-      <span *ngIf="alertLevel === 'CRITICAL'">⚠️ CRITICAL</span>
-      <span *ngIf="alertLevel === 'DANGER'">🚨 DANGER</span>
-      <span *ngIf="alertLevel === 'WARNING'">⚡ WARNING</span>
-      <span *ngIf="alertLevel === 'SAFE'">✅ SAFE</span>
-    </div>
-
-    <div class="risk-reasons" *ngIf="reasons.length > 0">
-      <div class="reason-item" *ngFor="let r of reasons">{{ r }}</div>
-    </div>
-  </div>
-
-  <!-- Sensor Cards Grid -->
-  <div class="sensors-grid">
-
-    <!-- Location -->
-    <div class="sensor-card" [class.active]="location !== null">
-      <div class="sensor-header">
-        <span class="sensor-icon">📍</span>
-        <span class="sensor-name">Location</span>
-        <span class="sensor-status" [class.ok]="location !== null">
-          {{ location ? '●' : '○' }}
-        </span>
-      </div>
-      <div class="sensor-value location-val" (click)="openMapsLink()">
-        {{ locationString }}
-      </div>
-      <div class="sensor-sub">GPS · Built-in · Every 5s</div>
-    </div>
-
-    <!-- Shake / Accelerometer -->
-    <div class="sensor-card" [class.active]="shakeIntensity > 2.5" [class.danger]="shakeIntensity > 5">
-      <div class="sensor-header">
-        <span class="sensor-icon">📳</span>
-        <span class="sensor-name">Shake</span>
-        <span class="sensor-status" [class.ok]="shakeIntensity > 2.5" [class.alert]="shakeIntensity > 5">●</span>
-      </div>
-      <div class="sensor-value">
-        {{ shakeIntensity | number:'1.1-1' }}
-        <span class="unit">m/s²</span>
-      </div>
-      <div class="sensor-bar">
-        <div class="bar-fill shake-bar" [style.width.%]="Math.min(100, shakeIntensity * 15)"></div>
-      </div>
-      <div class="sensor-sub">Accelerometer · &gt;5 = +40 pts</div>
-    </div>
-
-    <!-- Microphone / Scream -->
-    <div class="sensor-card" [class.active]="audioLevel > 15" [class.danger]="screamDetected">
-      <div class="sensor-header">
-        <span class="sensor-icon">🎙️</span>
-        <span class="sensor-name">Scream</span>
-        <span class="sensor-status" [class.alert]="screamDetected">
-          {{ screamDetected ? '🔴' : '●' }}
-        </span>
-      </div>
-      <div class="sensor-value" [class.scream-active]="screamDetected">
-        {{ screamDetected ? 'DETECTED!' : audioPercent + '%' }}
-      </div>
-      <div class="sensor-bar">
-        <div class="bar-fill mic-bar" [style.width.%]="audioPercent"
-             [class.danger-bar]="screamDetected"></div>
-      </div>
-      <div class="sensor-sub">Microphone · &gt;30dB = +35 pts</div>
-    </div>
-
-    <!-- Heart Rate -->
-    <div class="sensor-card"
-         [class.active]="heartRate > 0"
-         [class.danger]="heartRate > 120"
-         [class.sensor-card-measuring]="heartRateStatus === 'measuring'">
-      <div class="sensor-header">
-        <span class="sensor-icon heartbeat-icon" [class.beating]="heartRate > 0">❤️</span>
-        <span class="sensor-name">Heart Rate</span>
-        <span class="sensor-status"
-              [class.ok]="heartRate > 0 && heartRate <= 120"
-              [class.alert]="heartRate > 120">●</span>
-      </div>
-      <div class="sensor-value">
-        {{ heartRate > 0 ? heartRate : '--' }}
-        <span class="unit" *ngIf="heartRate > 0">BPM</span>
-      </div>
-
-      <!-- Not yet started -->
-      <div class="heart-rate-sub" *ngIf="!cameraActive">
-        <button class="camera-btn" (click)="toggleCamera()">
-          📷 Enable Camera rPPG
-        </button>
-      </div>
-
-      <!-- Camera ON: show status -->
-      <div *ngIf="cameraActive">
-        <div class="hr-status-row" *ngIf="heartRateStatus === 'measuring'" >
-          <span class="hr-status-dot measuring-dot"></span>
-          <span class="hr-status-text">Collecting signal... place finger firmly on lens</span>
+    <!-- Sidebar -->
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        
+        <!-- Wrap users section to toggle on mobile -->
+        <div class="sidebar-section-wrap" [class.mobile-hidden]="activeGuardianTab !== 'users'">
+          <!-- Logo -->
+          <div class="sidebar-logo">
+            <span class="logo-icon">👥</span>
+            <div>
+              <h1 class="logo-title">SafePulse AI</h1>
+              <span class="logo-sub">Guardian Dashboard</span>
+            </div>
+          </div>
+          <button class="exit-btn" (click)="resetRole()">← Logout</button>
+  
+          <!-- Connection Status -->
+          <div class="connection-status" [class.connected]="guardianConnected">
+            <div class="conn-dot"></div>
+            <span>{{ guardianConnected ? 'Live — Backend Connected' : 'Offline — Reconnecting...' }}</span>
+          </div>
+  
+          <!-- Stats Row -->
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-number">{{ guardianVictims.length }}</div>
+              <div class="stat-label">Protected</div>
+            </div>
+            <div class="stat-card danger-stat">
+              <div class="stat-number danger-num">{{ criticalCount }}</div>
+              <div class="stat-label">In Danger</div>
+            </div>
+            <div class="stat-card safe-stat">
+              <div class="stat-number safe-num">{{ safeCount }}</div>
+              <div class="stat-label">Safe</div>
+            </div>
+          </div>
+  
+          <!-- Victim List -->
+          <div class="victim-list-header">
+            <span>👥 Protected Users</span>
+            <span class="victim-count">{{ guardianVictims.length }}</span>
+          </div>
+  
+          <div class="victim-list">
+            <div class="no-victims" *ngIf="guardianVictims.length === 0">
+              <div class="no-victims-icon">📡</div>
+              <p>Waiting for connections...</p>
+            </div>
+  
+            <div class="victim-card" *ngFor="let v of guardianVictims; trackBy: trackByVictim"
+                 [class.selected]="selectedVictim?.victimId === v.victimId"
+                 [class.danger-card]="(v.alertLevel === 'DANGER' || v.alertLevel === 'CRITICAL') && !v.isOffline"
+                 [class.offline-card]="v.isOffline"
+                 (click)="selectVictim(v)">
+              
+              <div class="victim-avatar" [style.background]="v.isOffline ? '#555' : getAlertColor(v.alertLevel)">
+                {{ v.name ? v.name[0].toUpperCase() : '?' }}
+              </div>
+  
+              <div class="victim-info">
+                <div class="victim-name">{{ v.name }}</div>
+                <div class="victim-phone-text" *ngIf="v.phone && v.phone !== 'N/A'">📞 {{ v.phone }}</div>
+                
+                <div class="victim-meta" *ngIf="!v.isOffline">
+                  <span class="level-badge-sm" [class]="getGuardianAlertClass(v.alertLevel)">
+                    {{ v.alertLevel }}
+                  </span>
+                  <span class="victim-score">{{ v.riskScore }}/100</span>
+                </div>
+                <div class="victim-meta offline-meta" *ngIf="v.isOffline">
+                  <span class="level-badge-sm level-safe" style="background:#444; color:#aaa;">Offline</span>
+                </div>
+                <div class="victim-time">{{ v.isOffline ? 'User not online' : 'Online' }} · Last: {{ formatTime(v.lastSeen) }}</div>
+              </div>
+  
+              <div class="victim-risk-mini" *ngIf="!v.isOffline">
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                  <circle cx="20" cy="20" r="15" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+                  <circle cx="20" cy="20" r="15" fill="none" [attr.stroke]="getAlertColor(v.alertLevel)"
+                          stroke-width="3" stroke-linecap="round"
+                          [style.stroke-dasharray]="'94'"
+                          [style.stroke-dashoffset]="94 - (94 * v.riskScore / 100)"
+                          style="transform:rotate(-90deg);transform-origin:center;transition:all 1s ease"/>
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="hr-status-row" *ngIf="heartRateStatus === 'noSignal'">
-          <span class="hr-status-dot nosignal-dot"></span>
-          <span class="hr-status-text warn-text">👆 No finger detected — cover camera fully</span>
+
+
+        <!-- Wrap alerts section to toggle on mobile -->
+        <div class="alert-history-section" [class.mobile-hidden]="activeGuardianTab !== 'alerts'">
+          <div class="section-header">
+            <span>📩 SMS Alerts Sent</span>
+            <span class="count-badge">{{ guardianAlertHistory.length }}</span>
+          </div>
+
+          <div class="alert-list">
+            <div class="no-alerts" *ngIf="guardianAlertHistory.length === 0">
+              <span>No alerts fired yet</span>
+            </div>
+            <div class="alert-item" *ngFor="let a of guardianAlertHistory.slice(0, 10); trackBy: trackByAlert">
+              <div class="alert-item-icon">📱</div>
+              <div class="alert-item-content">
+                <div class="alert-item-time">{{ formatTime(a.timestamp) }}</div>
+                <div class="alert-item-text">{{ (a.text || '').split('\n')[0] }}</div>
+                <div class="alert-item-sub" style="font-size: 0.75rem; color: #fca5a5; margin-top: 2px; font-weight: 600;">
+                  {{ (a.text || '').split('\n')[2] }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="hr-status-row" *ngIf="heartRateStatus === 'ok'">
-          <span class="hr-status-dot ok-dot"></span>
-          <span class="hr-status-text">Signal OK</span>
+
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content" [class.mobile-hidden]="activeGuardianTab !== 'feed'">
+
+        <!-- Selected Victim Detail Panel -->
+        <div class="detail-panel" *ngIf="selectedVictim" [class]="getGuardianAlertClass(selectedVictim.alertLevel)" [class.offline-panel]="selectedVictim.isOffline">
+          
+          <div class="detail-header">
+            <div class="detail-avatar" [style.background]="selectedVictim.isOffline ? '#555' : getAlertColor(selectedVictim.alertLevel)">
+              {{ selectedVictim.name ? selectedVictim.name[0].toUpperCase() : '?' }}
+            </div>
+            <div class="detail-title">
+              <h3>{{ selectedVictim.name }}</h3>
+              <span class="level-badge-lg" [class]="getGuardianAlertClass(selectedVictim.alertLevel)" *ngIf="!selectedVictim.isOffline">
+                {{ selectedVictim.alertLevel }}
+              </span>
+              <span class="level-badge-lg" style="background:#555" *ngIf="selectedVictim.isOffline">
+                OFFLINE
+              </span>
+            </div>
+            <div class="detail-score" *ngIf="!selectedVictim.isOffline">
+              <div class="score-circle" [style.border-color]="getAlertColor(selectedVictim.alertLevel)">
+                <span class="score-num">{{ selectedVictim.riskScore }}</span>
+                <span class="score-label">RISK</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Victim Metadata Banner (Dynamic Guardian Info) -->
+          <div class="victim-metadata-banner" *ngIf="selectedVictim.phone || selectedVictim.guardianName">
+            <div class="meta-item">
+              <span class="meta-label">📞 Victim Phone</span>
+              <strong class="meta-val">{{ selectedVictim.phone || 'N/A' }}</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">👥 Assigned Guardian</span>
+              <strong class="meta-val">
+                {{ selectedVictim.guardianName || 'N/A' }}
+                <span class="meta-sub" *ngIf="selectedVictim.guardianPhone">({{ selectedVictim.guardianPhone }})</span>
+              </strong>
+            </div>
+            <div class="meta-item">
+               <span class="meta-label">Status</span>
+               <strong class="meta-val" [style.color]="selectedVictim.isOffline ? '#ef4444' : '#10b981'">
+                 {{ selectedVictim.isOffline ? 'User not online' : 'Online' }}
+               </strong>
+            </div>
+          </div>
+
+          <!-- Sensor Details Grid -->
+          <div class="sensor-details-grid" *ngIf="!selectedVictim.isOffline">
+            
+            <div class="sensor-detail-card" (click)="openGuardianGoogleMaps(selectedVictim)" style="cursor: pointer; border: 1px solid #3b82f6;">
+              <div class="sd-icon">📍</div>
+              <div class="sd-content">
+                <span class="sd-label">Location (Click to view Map)</span>
+                <span class="sd-value">
+                  {{ selectedVictim.location?.lat?.toFixed(4) }}°N, 
+                  {{ selectedVictim.location?.lng?.toFixed(4) }}°E
+                </span>
+              </div>
+            </div>
+
+            <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.heartRate > 120">
+              <div class="sd-icon heartbeat" [class.beating]="selectedVictim.heartRate > 0">❤️</div>
+              <div class="sd-content">
+                <span class="sd-label">Heart Rate</span>
+                <span class="sd-value">{{ selectedVictim.heartRate || '--' }} BPM</span>
+                <span class="sd-sub" *ngIf="selectedVictim.heartRate > 120">⚠️ Elevated</span>
+              </div>
+            </div>
+
+            <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.shakeIntensity > 15">
+              <div class="sd-icon">📳</div>
+              <div class="sd-content">
+                <span class="sd-label">Shake Intensity</span>
+                <span class="sd-value">{{ selectedVictim.shakeIntensity | number:'1.1-1' }} m/s²</span>
+                <span class="sd-sub" *ngIf="selectedVictim.shakeIntensity > 15">⚠️ Violent shake</span>
+              </div>
+            </div>
+
+            <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.screamDetected">
+              <div class="sd-icon">🎙️</div>
+              <div class="sd-content">
+                <span class="sd-label">Scream Detection</span>
+                <span class="sd-value" [class.scream-val]="selectedVictim.screamDetected">
+                  {{ selectedVictim.screamDetected ? '🔴 DETECTED' : '✅ Clear' }}
+                </span>
+                <span class="sd-sub">Audio: {{ selectedVictim.audioLevel }}/255</span>
+              </div>
+            </div>
+
+            <div class="sensor-detail-card" [class.sd-alert]="selectedVictim.sosPressed">
+              <div class="sd-icon">🆘</div>
+              <div class="sd-content">
+                <span class="sd-label">SOS Button</span>
+                <span class="sd-value" [class.sos-val]="selectedVictim.sosPressed">
+                  {{ selectedVictim.sosPressed ? '🔴 PRESSED!' : '✅ Not pressed' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="sensor-detail-card">
+              <div class="sd-icon">🕐</div>
+              <div class="sd-content">
+                <span class="sd-label">Last Signal</span>
+                <span class="sd-value">{{ formatTime(selectedVictim.lastSeen) }}</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Offline Message -->
+          <div class="offline-msg" *ngIf="selectedVictim.isOffline" style="text-align:center; padding: 40px; color:#aaa;">
+            <h2>User is not online.</h2>
+            <p>Live readings will appear here once the user opens the SafeBand app.</p>
+          </div>
+
+          <!-- Risk Reasons -->
+          <div class="risk-reasons-panel" *ngIf="!selectedVictim.isOffline && selectedVictim.riskReasons && selectedVictim.riskReasons.length > 0">
+            <div class="reasons-header">Risk Triggers:</div>
+            <div class="reason-tag" *ngFor="let r of selectedVictim.riskReasons">{{ r }}</div>
+          </div>
+
         </div>
-        <div class="sensor-sub">
-          rPPG · &gt;120 BPM = +25 pts
-          <button class="camera-stop-btn" (click)="toggleCamera()">Stop</button>
+
+        <!-- No selection placeholder -->
+        <div class="no-selection" *ngIf="!selectedVictim">
+          <div class="no-sel-icon">👆</div>
+          <p>Click a victim on the map or sidebar to view details</p>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- AI Health Chatbot -->
+    <div class="chatbot-container" [class.chat-open]="isChatOpen">
+      <button class="chat-toggle-btn" (click)="isChatOpen = !isChatOpen" [title]="isChatOpen ? 'Close Chat' : 'SafePulse AI Assistant'">
+        <span class="chat-icon-inner">{{ isChatOpen ? '✕' : '🤖' }}</span>
+        <span class="chat-text-inner" *ngIf="!isChatOpen">SafePulse AI Assistant</span>
+      </button>
+      <div class="chat-panel" *ngIf="isChatOpen">
+        <div class="chat-header">
+          <h3>SafePulse AI Assistant</h3>
+          <span>Ask basic medical & safety queries</span>
+        </div>
+        <div class="chat-messages">
+          <div class="chat-msg" *ngFor="let msg of chatMessages" [class.user-msg]="msg.sender === 'user'" [class.ai-msg]="msg.sender === 'ai'">
+            {{ msg.text }}
+          </div>
+          <div class="chat-msg ai-msg typing" *ngIf="isChatTyping">Typing...</div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" [(ngModel)]="chatInput" placeholder="Type a health question..." (keyup.enter)="sendChatMessage()">
+          <button (click)="sendChatMessage()">Send</button>
         </div>
       </div>
     </div>
-
   </div>
+</ng-container>
 
-  <!-- SOS Button -->
-  <div class="sos-section">
-    <button class="sos-button" (click)="triggerSOS()" [class.sos-active]="sosPressed"
-            [disabled]="sosPressed">
-      <div class="sos-ring sos-ring-1"></div>
-      <div class="sos-ring sos-ring-2"></div>
-      <div class="sos-inner">
-        <span class="sos-text">SOS</span>
-        <span class="sos-sub" *ngIf="!sosPressed">Press for Emergency</span>
-        <span class="sos-sub sos-counting" *ngIf="sosPressed">Alert sent! ({{ sosCountdown }}s)</span>
-      </div>
-    </button>
-    <p class="sos-hint">Instantly triggers alert + notifies guardian</p>
-  </div>
-
-  <!-- How it Works Info -->
-  <div class="info-footer">
-    <div class="flow-item">
-      <span class="flow-icon">📡</span>
-      <span>Signals captured</span>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-item">
-      <span class="flow-icon">🧠</span>
-      <span>Risk scored</span>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-item">
-      <span class="flow-icon">📱</span>
-      <span>SMS sent</span>
-    </div>
-  </div>
-
-</div>
+<!-- Leaflet Map Marker Styles for Guardian view -->
+<style>
+  .map-marker { position: relative; width: 40px; height: 40px; }
+  .marker-inner {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 0.9rem;
+    border: 2px solid rgba(255,255,255,0.4);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .marker-ring {
+    position: absolute; inset: -4px; border-radius: 50%;
+    border: 2px solid #ef4444; animation: pulse-ring 1.5s infinite;
+  }
+  @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.8); opacity: 0; } }
+</style>
