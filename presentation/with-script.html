@@ -66,6 +66,16 @@
     .closing-q{font-size:1.35rem;font-weight:800;text-align:center;max-width:620px;background:linear-gradient(135deg,#fff 20%,#a78bfa 60%,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.5}
     /* ARCH SLIDE */
     .arch-img{display:block;width:auto;max-width:100%;max-height:70vh;object-fit:contain;border-radius:18px;border:1px solid rgba(124,58,237,.3);box-shadow:0 0 40px rgba(124,58,237,.2)}
+    /* SMS PREVIEW MOCKUP */
+    .sms-preview {background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:16px 20px;backdrop-filter:blur(12px);box-shadow:0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(124,58,237,0.15);width:100%;max-width:380px;margin:0 auto;text-align:left}
+    .sms-header {display:flex;align-items:center;justify-content:space-between;font-size:0.72rem;color:var(--muted);letter-spacing:1px;font-weight:700;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:8px}
+    .sms-icon {font-size:0.9rem;margin-right:4px}
+    .sms-app {flex-grow:1;text-transform:uppercase}
+    .sms-time {font-weight:normal}
+    .sms-sender {font-size:0.82rem;font-weight:800;color:#a78bfa;margin-bottom:4px}
+    .sms-trial-prefix {font-size:0.72rem;color:#94a3b8;font-style:italic;margin-bottom:10px;line-height:1.4}
+    .sms-content {font-family:monospace;font-size:0.8rem;line-height:1.5;color:#cbd5e1;background:rgba(0,0,0,0.2);border-radius:8px;padding:10px 12px;border-left:3px solid var(--danger)}
+    .sms-link {color:#06b6d4;text-decoration:underline;word-break:break-all}
     /* SPEAKER NOTES */
     #notes-panel{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);width:min(820px,92vw);background:rgba(7,7,26,.93);border:1px solid rgba(124,58,237,.3);border-radius:16px;backdrop-filter:blur(20px);padding:15px 22px;font-size:.83rem;color:#94a3b8;line-height:1.65;display:none;z-index:500;max-height:180px;overflow-y:auto}
     #notes-panel .np-t{font-size:.67rem;font-weight:800;color:#a78bfa;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px}
@@ -163,7 +173,7 @@
       <div class="tech-card"><div class="tc-icon">🌐</div><div class="tc-label">Frontend</div><div class="tc-items">Angular 17<br/>Firebase Hosting<br/>User &amp; Guardian<br/>Dashboards</div></div>
       <div class="tech-card"><div class="tc-icon">⚙️</div><div class="tc-label">Backend</div><div class="tc-items">Node.js + Express<br/>WebSocket Live<br/>REST API<br/>Render Hosting</div></div>
       <div class="tech-card"><div class="tc-icon">📱</div><div class="tc-label">Communication</div><div class="tc-items">Twilio SMS<br/>Instant SMS Alerts<br/>Google Maps Link<br/>Guardian Notification</div></div>
-      <div class="tech-card"><div class="tc-icon">🤖</div><div class="tc-label">AI-Assisted Dev</div><div class="tc-items">Google Antigravity<br/>Claude AI<br/>Gemini<br/>Acceleration &amp; Debugging</div></div>
+      <div class="tech-card"><div class="tc-icon">🤖</div><div class="tc-label">AI-Assisted Dev</div><div class="tc-items">Google Antigravity<br/>Claude AI<br/>Gemini</div></div>
     </div>
     <p class="tagline" style="font-size:.86rem">AI tools helped <em>accelerate development</em>, generate intelligent logic, and solve complex problems rapidly.</p>
   </section>
@@ -183,16 +193,45 @@
   <!-- 08 IMPACT + CLOSING -->
   <section class="slide" id="s7">
     <div class="sn">08 / 08</div>
-    <h2 class="st">Impact &amp; Use Cases</h2>
-    <div class="g5c" style="margin-bottom:22px">
-      <div class="ichip"><div class="ic-i">👩</div><div class="ic-l">Women Safety</div></div>
-      <div class="ichip"><div class="ic-i">👦</div><div class="ic-l">Child Safety</div></div>
-      <div class="ichip"><div class="ic-i">👴</div><div class="ic-l">Elderly Care</div></div>
-      <div class="ichip"><div class="ic-i">🔐</div><div class="ic-l">Personal Security</div></div>
-      <div class="ichip"><div class="ic-i">🏢</div><div class="ic-l">Employee Safety</div></div>
+    <h2 class="st">Impact &amp; Live Demo</h2>
+    
+    <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap: 40px; width: 100%; max-width: 980px; align-items: center; margin-bottom: 24px;">
+      <!-- Left: Impact & Use Cases -->
+      <div style="display: flex; flex-direction: column; gap: 18px;">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+          <div class="ichip"><div class="ic-i">👩</div><div class="ic-l">Women Safety</div></div>
+          <div class="ichip"><div class="ic-i">👦</div><div class="ic-l">Child Safety</div></div>
+          <div class="ichip"><div class="ic-i">👴</div><div class="ic-l">Elderly Care</div></div>
+          <div class="ichip" style="grid-column: span 1.5;"><div class="ic-i">🔐</div><div class="ic-l">Personal Security</div></div>
+          <div class="ichip" style="grid-column: span 1.5;"><div class="ic-i">🏢</div><div class="ic-l">Employee Safety</div></div>
+        </div>
+        <div class="solbox" style="font-size:.85rem; padding: 14px 20px;">
+          SafePulse AI aims to <strong>reduce response time</strong> and improve personal safety through connected, intelligent monitoring.
+        </div>
+      </div>
+      
+      <!-- Right: Twilio SMS Mockup -->
+      <div class="sms-preview">
+        <div class="sms-header">
+          <span class="sms-icon">💬</span>
+          <span class="sms-app">MESSAGES</span>
+          <span class="sms-time">now</span>
+        </div>
+        <div class="sms-body">
+          <div class="sms-sender">Twilio Alert Gateway</div>
+          <div class="sms-trial-prefix">Sent from your Twilio trial account -</div>
+          <div class="sms-content">
+            <strong>SafePulse AI ALERT!</strong><br>
+            Pramodh needs help!<br>
+            Risk : CRITICAL (95/100)<br>
+            Time : 28 Jun 3:48 pm<br>
+            Location : <span class="sms-link">https://maps.google.com/?q=17.304435,78.6176893</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="solbox" style="margin-bottom:16px;font-size:.9rem">SafePulse AI aims to <strong>reduce emergency response time</strong> and improve personal safety through connected, intelligent monitoring.</div>
-    <div class="closing-q">"Smart technology that watches over you — when you need it the most."</div>
+
+    <div class="closing-q" style="font-size: 1.25rem;">"Smart technology that watches over you — when you need it the most."</div>
   </section>
 
 </div>
