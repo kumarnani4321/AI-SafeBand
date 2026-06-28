@@ -52,7 +52,7 @@
     .tc-icon{font-size:2.2rem;margin-bottom:9px}
     .tc-label{font-size:.68rem;font-weight:800;color:#a78bfa;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px}
     .tc-items{font-size:.77rem;color:var(--muted);line-height:1.7}
-    .inno{max-width:820px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .inno{max-width:960px;width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
     .icard{display:flex;align-items:flex-start;gap:13px;background:rgba(17,17,48,.75);border:1px solid rgba(124,58,237,.25);border-radius:14px;padding:16px 18px;transition:transform .3s}
     .icard:hover{transform:translateY(-4px);border-color:#a78bfa}
     .icard .ii{font-size:1.5rem;margin-top:2px}
@@ -177,7 +177,6 @@
       <div class="icard"><div class="ii">🧠</div><div><h4>Intelligent Multi-Sensor Risk Score</h4><p>Combines shake, sound, heart rate, and SOS into one unified risk score (0–100).</p></div></div>
       <div class="icard"><div class="ii">🔗</div><div><h4>Real-Time Guardian Dashboard</h4><p>Live updates via WebSocket every 5 seconds — no manual refresh needed.</p></div></div>
       <div class="icard"><div class="ii">⚡</div><div><h4>Automatic SMS Trigger</h4><p>When risk score crosses 70, an SMS with live location is sent with no user action.</p></div></div>
-      <div class="icard"><div class="ii">🌍</div><div><h4>Zero Install, Web-Based</h4><p>Works on any smartphone browser. No app download required (if browser is suspended or phone turns off, Guardian Dashboard immediately flags them as 'Offline').</p></div></div>
     </div>
   </section>
 
@@ -255,7 +254,7 @@ And the entire project was accelerated using AI tools — Google Antigravity, Cl
 "What makes SafePulse AI different from a basic safety app?<br>
 All signals — shake, scream, heartbeat, and SOS — are combined into one intelligent risk score from 0 to 100.<br>
 When the score crosses 70, an automatic SMS is sent to the guardian with a live Google Maps link — <strong>with no user action required</strong>.<br>
-And because it is a web app, there is no installation needed. We have also addressed the main challenge of web apps: if a user's phone turns off or the browser is suspended, the Guardian Dashboard immediately detects the loss of signal within 15 seconds and flags them as <strong>Offline</strong>, so the guardian is instantly warned."`,
+The Guardian Dashboard updates every 5 seconds in real time."`,
 
 `<strong>Slide 8 — Impact + Closing</strong><br>
 "SafePulse AI has applications across multiple high-need groups — women, children, elderly, and employees in isolated environments.<br>
@@ -265,8 +264,7 @@ Thank you. I am happy to take any questions, and I will now show a live demo of 
 <strong>🚀 Live Demo Script &amp; Instructions:</strong><br>
 1. <strong>Open User Portal:</strong> Open <a href="https://safepulse-companion.web.app" target="_blank">safepulse-companion.web.app</a> on your phone.<br>
 2. <strong>Open Guardian Dashboard:</strong> Open the Guardian Dashboard on the presentation screen.<br>
-3. <strong>Explain Offline Detection:</strong> Lock your phone screen. Let the audience see that within 15 seconds, the dashboard changes from "Online" to "Offline" (User not online). This demonstrates how the system protects the user even if their phone is turned off or taken.<br>
-4. <strong>Demonstrate SOS &amp; SMS:</strong> Unlock your phone and tap the <strong>SOS</strong> button. Show the audience the Guardian Dashboard instantly updating to a critical risk score of <strong>95/100</strong>. Point to the <strong>'📩 SMS Alerts Sent'</strong> list on the dashboard. This shows the sent SMS history in real-time, proving the SMS was transmitted to Twilio without needing to hold up your personal phone screen!"`
+3. <strong>Demonstrate SOS &amp; SMS:</strong> Tap the <strong>SOS</strong> button. Show the audience the Guardian Dashboard instantly updating to a critical risk score of <strong>95/100</strong>. Point to the <strong>'📩 SMS Alerts Sent'</strong> list on the dashboard. This shows the sent SMS history in real-time, proving the SMS was transmitted to Twilio without needing to hold up your personal phone screen!"`
 ];
 
 const TOTAL=8;let current=0,notesVisible=false;
