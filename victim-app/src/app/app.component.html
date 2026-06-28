@@ -530,7 +530,7 @@
               <div class="alert-item-icon">📱</div>
               <div class="alert-item-content">
                 <div class="alert-item-time">{{ formatTime(a.timestamp) }}</div>
-                <div class="alert-item-text">SafePulse AI ALERT! (Score: {{ a.score || 70 }}/100)</div>
+                <div class="alert-item-text">SafePulse AI ALERT! (Score: {{ getAlertScore(a) }}/100)</div>
               </div>
             </div>
           </div>

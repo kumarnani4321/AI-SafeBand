@@ -643,6 +643,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     catch { return iso; }
   }
 
+  getAlertScore(a: any): string {
+    if (a.score !== undefined && a.score !== null) return `${a.score}`;
+    const match = (a.text || '').match(/\((\d+)\/100\)/);
+    return match ? match[1] : '70';
+  }
+
   trackByVictim(_: number, v: any) { return v.victimId; }
   trackByAlert(_: number, a: AlertMessage) { return a.id; }
 
