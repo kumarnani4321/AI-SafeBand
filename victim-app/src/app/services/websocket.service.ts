@@ -27,6 +27,8 @@ export interface AlertMessage {
   text: string;
   sent: boolean;
   victimId: string;
+  score?: number;
+  level?: string;
 }
 
 export interface WSMessage {
