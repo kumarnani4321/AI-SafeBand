@@ -15,6 +15,7 @@
     .b2{width:500px;height:500px;background:#06b6d4;bottom:-100px;right:-100px;animation:drift 13s ease-in-out infinite alternate-reverse}
     .b3{width:350px;height:350px;background:#ef4444;top:35%;left:55%;animation:drift 9s ease-in-out infinite alternate}
     @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,30px) scale(1.1)}}
+    @keyframes float-shield{from{transform:translateY(0)}to{transform:translateY(-8px)}}
     .deck{position:relative;width:100vw;height:100vh}
     .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:55px 75px 115px;opacity:0;pointer-events:none;transform:translateX(80px) scale(.97);transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1)}
     .slide.active{opacity:1;pointer-events:all;transform:translateX(0) scale(1)}
@@ -102,7 +103,8 @@
 
   <!-- 01 TITLE -->
   <section class="slide active" id="s0">
-    <div class="sn">01 / 08</div>
+    <div class="sn">01 / 09</div>
+    <div class="title-shield" style="font-size: 4.2rem; margin-bottom: 15px; filter: drop-shadow(0 0 22px rgba(124, 58, 237, 0.75)); animation: float-shield 3s ease-in-out infinite alternate;">🛡️</div>
     <h1 class="hero">SafePulse AI</h1>
     <p class="subtitle">Smart Personal Safety &amp; Emergency Response Platform</p>
     <p class="tagline" style="max-width:620px;margin-top:10px">A web-based safety platform that connects users with trusted guardians through <em>real-time monitoring</em> and <em>instant automated alerts</em>.</p>
@@ -110,14 +112,14 @@
 
   <!-- 02 ARCHITECTURE -->
   <section class="slide" id="s1">
-    <div class="sn">02 / 08</div>
+    <div class="sn">02 / 09</div>
     <h2 class="st">System Architecture</h2>
     <img src="architecture.png" alt="SafePulse AI System Architecture" class="arch-img"/>
   </section>
 
   <!-- 03 PROBLEM -->
   <section class="slide" id="s2">
-    <div class="sn">03 / 08</div>
+    <div class="sn">03 / 09</div>
     <h2 class="st">Problem Statement</h2>
     <ul class="plist">
       <li><span>⚠️</span> During emergencies, people may not be able to call or text for help.</li>
@@ -131,7 +133,7 @@
 
   <!-- 04 OVERVIEW -->
   <section class="slide" id="s3">
-    <div class="sn">04 / 08</div>
+    <div class="sn">04 / 09</div>
     <h2 class="st">Product Overview</h2>
     <p class="tagline" style="margin-bottom:24px">Two connected interfaces working together in real time.</p>
     <div class="portals">
@@ -154,7 +156,7 @@
 
   <!-- 05 FEATURES -->
   <section class="slide" id="s4">
-    <div class="sn">05 / 08</div>
+    <div class="sn">05 / 09</div>
     <h2 class="st">Key Features</h2>
     <div class="g5">
       <div class="card"><div class="ci">🆘</div><h3>SOS Trigger</h3><p>One tap instantly sends location and a critical-level alert to the guardian.</p></div>
@@ -167,7 +169,7 @@
 
   <!-- 06 TECH STACK -->
   <section class="slide" id="s5">
-    <div class="sn">06 / 08</div>
+    <div class="sn">06 / 09</div>
     <h2 class="st">Technology Stack</h2>
     <div class="g4" style="margin-bottom:18px">
       <div class="tech-card"><div class="tc-icon">🌐</div><div class="tc-label">Frontend</div><div class="tc-items">Angular 17<br/>Firebase Hosting<br/>User &amp; Guardian<br/>Dashboards</div></div>
@@ -180,7 +182,7 @@
 
   <!-- 07 INNOVATION -->
   <section class="slide" id="s6">
-    <div class="sn">07 / 08</div>
+    <div class="sn">07 / 09</div>
     <h2 class="st">Innovation &amp; What Makes Us Different</h2>
     <p class="tagline" style="margin-bottom:22px">Unlike traditional apps that only provide a button — SafePulse AI <em>thinks on your behalf</em>.</p>
     <div class="inno">
@@ -190,48 +192,50 @@
     </div>
   </section>
 
-  <!-- 08 IMPACT + CLOSING -->
+  <!-- 08 TWILIO SMS PREVIEW -->
   <section class="slide" id="s7">
-    <div class="sn">08 / 08</div>
-    <h2 class="st">Impact &amp; Live Demo</h2>
+    <div class="sn">08 / 09</div>
+    <h2 class="st">Twilio SMS Alert Preview</h2>
+    <p class="tagline" style="margin-bottom:30px">This is the exact layout of the automated emergency alert sent to the guardian's mobile phone.</p>
     
-    <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap: 40px; width: 100%; max-width: 980px; align-items: center; margin-bottom: 24px;">
-      <!-- Left: Impact & Use Cases -->
-      <div style="display: flex; flex-direction: column; gap: 18px;">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-          <div class="ichip"><div class="ic-i">👩</div><div class="ic-l">Women Safety</div></div>
-          <div class="ichip"><div class="ic-i">👦</div><div class="ic-l">Child Safety</div></div>
-          <div class="ichip"><div class="ic-i">👴</div><div class="ic-l">Elderly Care</div></div>
-          <div class="ichip" style="grid-column: span 1.5;"><div class="ic-i">🔐</div><div class="ic-l">Personal Security</div></div>
-          <div class="ichip" style="grid-column: span 1.5;"><div class="ic-i">🏢</div><div class="ic-l">Employee Safety</div></div>
-        </div>
-        <div class="solbox" style="font-size:.85rem; padding: 14px 20px;">
-          SafePulse AI aims to <strong>reduce response time</strong> and improve personal safety through connected, intelligent monitoring.
-        </div>
+    <div class="sms-preview" style="transform: scale(1.15); margin-top: 10px;">
+      <div class="sms-header">
+        <span class="sms-icon">💬</span>
+        <span class="sms-app">MESSAGES</span>
+        <span class="sms-time">now</span>
       </div>
-      
-      <!-- Right: Twilio SMS Mockup -->
-      <div class="sms-preview">
-        <div class="sms-header">
-          <span class="sms-icon">💬</span>
-          <span class="sms-app">MESSAGES</span>
-          <span class="sms-time">now</span>
-        </div>
-        <div class="sms-body">
-          <div class="sms-sender">Twilio Alert Gateway</div>
-          <div class="sms-trial-prefix">Sent from your Twilio trial account -</div>
-          <div class="sms-content">
-            <strong>SafePulse AI ALERT!</strong><br>
-            Pramodh needs help!<br>
-            Risk : CRITICAL (95/100)<br>
-            Time : 28 Jun 3:48 pm<br>
-            Location : <span class="sms-link">https://maps.google.com/?q=17.304435,78.6176893</span>
-          </div>
+      <div class="sms-body">
+        <div class="sms-sender">Twilio Alert Gateway</div>
+        <div class="sms-trial-prefix">Sent from your Twilio trial account -</div>
+        <div class="sms-content">
+          <strong>SafePulse AI ALERT!</strong><br>
+          Pramodh needs help!<br>
+          Risk : CRITICAL (95/100)<br>
+          Time : 28 Jun 3:48 pm<br>
+          Location : <span class="sms-link">https://maps.google.com/?q=17.304435,78.6176893</span>
         </div>
       </div>
     </div>
+  </section>
 
-    <div class="closing-q" style="font-size: 1.25rem;">"Smart technology that watches over you — when you need it the most."</div>
+  <!-- 09 IMPACT + CLOSING -->
+  <section class="slide" id="s8">
+    <div class="sn">09 / 09</div>
+    <h2 class="st">Impact &amp; Use Cases</h2>
+    
+    <div class="g5c" style="margin-bottom:30px">
+      <div class="ichip"><div class="ic-i">👩</div><div class="ic-l">Women Safety</div></div>
+      <div class="ichip"><div class="ic-i">👦</div><div class="ic-l">Child Safety</div></div>
+      <div class="ichip"><div class="ic-i">👴</div><div class="ic-l">Elderly Care</div></div>
+      <div class="ichip"><div class="ic-i">🔐</div><div class="ic-l">Personal Security</div></div>
+      <div class="ichip"><div class="ic-i">🏢</div><div class="ic-l">Employee Safety</div></div>
+    </div>
+    
+    <div class="solbox" style="margin-bottom:24px; font-size:.9rem; max-width:860px">
+      SafePulse AI aims to <strong>reduce response time</strong> and improve personal safety through connected, intelligent monitoring.
+    </div>
+
+    <div class="closing-q">"Smart technology that watches over you — when you need it the most."</div>
   </section>
 
 </div>
@@ -295,9 +299,14 @@ All signals — shake, scream, heartbeat, and SOS — are combined into one inte
 When the score crosses 70, an automatic SMS is sent to the guardian with a live Google Maps link — <strong>with no user action required</strong>.<br>
 The Guardian Dashboard updates every 5 seconds in real time."`,
 
-`<strong>Slide 8 — Impact + Closing</strong><br>
-"SafePulse AI has applications across multiple high-need groups — women, children, elderly, and employees in isolated environments.<br>
-In all these cases, the goal is the same — to reduce the time between danger and rescue.<br>
+`<strong>Slide 8 — Twilio SMS Alert Preview</strong><br>
+"Here is a preview of the exact emergency SMS alert that guardians receive on their phones.<br>
+When the risk score hits 70, the backend automatically triggers an SMS via Twilio.<br>
+It includes the user's name, the safety risk status, the exact timestamp, and most importantly, a Google Maps link. This lets guardians see the location and coordinate emergency response instantly."`,
+
+`<strong>Slide 9 — Impact + Closing</strong><br>
+"SafePulse AI has applications across women's safety, child safety, elderly care, personal security, and employee monitoring.<br>
+Our goal is to reduce response time and protect lives when it matters most.<br>
 I will close with: <strong>'Smart technology that watches over you — when you need it the most.'</strong><br>
 Thank you. I am happy to take any questions, and I will now show a live demo of the application."<br><br>
 <strong>🚀 Live Demo Script &amp; Instructions:</strong><br>
@@ -306,7 +315,7 @@ Thank you. I am happy to take any questions, and I will now show a live demo of 
 3. <strong>Demonstrate SOS &amp; SMS:</strong> Tap the <strong>SOS</strong> button. Show the audience the Guardian Dashboard instantly updating to a critical risk score of <strong>95/100</strong>. Point to the <strong>'📩 SMS Alerts Sent'</strong> list on the dashboard. This shows the sent SMS history in real-time, proving the SMS was transmitted to Twilio without needing to hold up your personal phone screen!"`
 ];
 
-const TOTAL=8;let current=0,notesVisible=false;
+const TOTAL=9;let current=0,notesVisible=false;
 const dotsEl=document.getElementById('dots');
 for(let i=0;i<TOTAL;i++){const d=document.createElement('div');d.className='dn'+(i===0?' active':'');d.onclick=()=>goTo(i);dotsEl.appendChild(d);}
 function updateUI(){
