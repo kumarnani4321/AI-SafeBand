@@ -530,10 +530,7 @@
               <div class="alert-item-icon">📱</div>
               <div class="alert-item-content">
                 <div class="alert-item-time">{{ formatTime(a.timestamp) }}</div>
-                <div class="alert-item-text">SafePulse AI ALERT!</div>
-                <div class="alert-item-sub" style="font-size: 0.75rem; color: #fca5a5; margin-top: 2px; font-weight: 600;">
-                  Risk: {{ a.level || 'DANGER' }} ({{ a.score || 70 }}/100)
-                </div>
+                <div class="alert-item-text">SafePulse AI ALERT! (Score: {{ a.score || 70 }}/100)</div>
               </div>
             </div>
           </div>
